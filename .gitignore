@@ -24,3 +24,6 @@ test-results/
 !.env.example
 
 .DS_Store
+
+# Agent worktrees
+.claude/worktrees/

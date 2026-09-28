@@ -136,12 +136,17 @@ they resolve on every clone. Agents reference skills by name; bodies are never i
 
 ## Agent delegation
 
-- Run a stage with `/implement <stage>`: planner → implementer → plan-verifier →
-  architecture-reviewer → dead-code-analyzer (`.claude/agents/`).
-- No domain gate exists yet. Write a money-reviewer (`.claude/agents/money-reviewer.md`) before M3,
-  when connectors and matching start changing money figures.
-- Delegate only independent work; keep overlapping edits with one implementer. After T01, the UI
-  port, data and core maths are file-disjoint tracks.
+- Run a stage with `/implement [stage]`. It runs the `implement-stage` workflow:
+  - `orchestrator` (Opus) plans the stage and splits it into file-disjoint tasks;
+  - `implementer` workers (Sonnet), one per task, each build in a dedicated git worktree;
+  - `orchestrator` squash-merges them into `master`;
+  - `plan-verifier` and `architecture-reviewer` (Sonnet) review;
+  - `orchestrator` delivers and pushes.
+- `researcher` is Opus.
+- The owner runs the loop without confirmations. Record every decision taken on the owner's behalf
+  in `PLAN.md`.
+- No domain gate exists yet. Write a money-reviewer (`.claude/agents/money-reviewer.md`) before M3.
+- A money-path critical chain stays with one worker.
 
 Project skills are in `.claude/skills/` and `.agents/skills/`. Reference them by name; never inline
 a skill body.

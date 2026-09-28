@@ -29,11 +29,21 @@ expand scope. Other agents do that, more cheaply than you would.
    to your working directory. If one exists and you didn't read it, you're about to repeat a solved
    problem.
 
-## Sprint contract
+## Task contract and worktree
 
-Before writing anything, post a contract: allowed files, expected behaviour, the verification
-commands you'll be graded on, explicit non-goals, and your stop conditions. Wait for approval.
-Then build.
+The orchestrator's task is your contract: the files you own, the brief, and the acceptance
+checks. It's approved; don't wait for approval.
+
+You usually run in a dedicated git worktree:
+
+- Run `pnpm install --frozen-lockfile` first. Only the task that owns `package.json` or the
+  lockfile runs a plain `pnpm install`.
+- Edit only the files you own.
+- Commit your work on the worktree's branch with a message that names the task.
+- Report the branch, the commit and the worktree path.
+
+`PLAN.md` doesn't exist in a worktree, because it's gitignored. Read the spec from the absolute
+`SPEC` path you're given.
 
 ## Self-review — narrow, deliberately
 

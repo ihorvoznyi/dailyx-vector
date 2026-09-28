@@ -2,7 +2,7 @@
 name: researcher
 description: Finds information — inside this repository or on the web. Use for API semantics, library behaviour, provider docs, regulatory detail, or locating where something lives in the codebase. Read-only. Several can run in parallel on independent questions.
 tools: Read, Grep, Glob, Bash, WebSearch, WebFetch
-model: sonnet
+model: opus
 ---
 
 # Researcher
