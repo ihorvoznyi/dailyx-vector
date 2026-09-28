@@ -45,11 +45,15 @@ If a set fails to resolve together, T01 changes it here and says why.
 
 ### Environments
 
-| | dev | preview | production |
-|---|---|---|---|
-| Web | `pnpm dev` | Vercel preview per PR | Vercel production |
-| Database | Neon `dev` branch | Neon branch per preview, via the Vercel integration, seeded | Neon `main` |
-| Auth | Google OAuth client with a localhost redirect | See the preview risk below | Google OAuth client with the production redirect |
+Preview deploys aren't used while commits go straight to `master` (SPEC D19).
+
+| | dev | production |
+|---|---|---|
+| Web | `pnpm dev` | Vercel production, deployed on every push to `master` |
+| Database | Neon `dev` branch | Neon `main` |
+| Auth | Google OAuth client with a localhost redirect | Google OAuth client with the production redirect |
+
+Styling packages are pinned in ADR 0002.
 
 ## Consequences
 
@@ -58,9 +62,9 @@ If a set fails to resolve together, T01 changes it here and says why.
   that bypasses it is a review blocker.
 - Better Auth owns the `user`, `session`, `account` and `verification` tables. The domain Account
   table is `money_accounts`.
-- **Preview sign-in:** Google needs exact redirect URIs, and Vercel preview URLs change on every
-  deploy. T06 uses Better Auth's OAuth proxy plugin (verify it exists in 1.7.x) or a stable preview
-  alias.
+- **Preview sign-in**, if preview deploys return: Google needs exact redirect URIs, and Vercel
+  preview URLs change on every deploy. Use Better Auth's OAuth proxy plugin (verify it exists in
+  1.7.x) or a stable preview alias.
 - Cloudflare Workers can't run pg-boss, so M3 jobs use Queues and Cron Triggers. A job has to work
   in chunks: the Monobank backfill runs one call per message, with a 60 s delay between messages.
 - Encryption keys for source tokens live in the job runtime's secret store (from M2), never in the

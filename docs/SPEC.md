@@ -1,6 +1,6 @@
 # Vector — Product & Build Spec
 
-Sep 28, 2026 · @Ihor · **Revised Sep 28, 2026 after scoping.** Decisions D1–D17 are applied
+Sep 28, 2026 · @Ihor · **Revised Sep 28, 2026 after scoping.** Decisions D1–D19 are applied
 throughout. A section that changed says so and names the decision.
 
 ## Summary
@@ -48,6 +48,8 @@ channel.
 | D15 | Treat the Monobank personal webhook as unsigned: unguessable per-connection URL, and re-fetch rather than trust the payload. | Signing is documented only for Monobank's acquiring webhooks. | Data sources, Security |
 | D16 | FX history comes from the NBU API. The Monobank public endpoint returns current rates only. | Verified by a live request. | Data sources |
 | D17 | M1 data is entered by hand and can't be re-synced, so backups matter from day one. Confirm Neon's restore window before T05. | Original assumption, that everything is re-syncable, doesn't hold in M1. | Security, Open decisions |
+| D18 | Tailwind CSS v4 everywhere. The theme is generated from Vector tokens only, with no arbitrary values. Components are rebuilt as atoms composed into the 33 public components, keeping their names and props; variants use `cva` + `cn`. `bundle.css` is a reference only. | The owner wants one styling system built from reusable, modular components. | Design system, `docs/adr/0002-styling.md` |
+| D19 | For now, commit straight to `master`: no PRs, no preview deploys, and no CI. The gates run locally and in the pre-commit hook. Every push deploys to Vercel. | One developer; review happens through the agent pipeline, not PRs. | Scope (P0), Build plan |
 
 ## Principles and non-goals
 
@@ -89,7 +91,7 @@ used daily before the next starts. **Don't start M2 tickets until the M1 exit ga
 
 | Milestone | Goal | Includes | Exit gate | Target |
 | --- | --- | --- | --- | --- |
-| P0 Foundation | A running shell | Monorepo, CI, a preview deploy per PR with its own Neon branch, token pipeline, full Vector UI port, Google sign-in, M1 tables, seed data, settings | CI green; every component's visual test passes; sign-in and settings work on a preview | ~Oct 9 |
+| P0 Foundation | A running shell | Monorepo, a Vercel deploy on every push to `master` (D19), Tailwind token theme, full Vector UI rebuild (D18), Google sign-in, M1 tables, seed data, settings | Gates green; every component's visual test passes; sign-in and settings work on the deployed app | ~Oct 9, likely later (D18) |
 | M1 Acquisition MVP | Know which channel turns hours into clients | Setup (channels, hours, cost, accounts); quick-log, paste a list and stage taps; ChannelFunnel and ChannelHealth per channel; weekly review; manual money feeding FreedomMeter, net worth and runway; show-the-math drawer | Two straight weeks with every outreach item logged, and the weekly review under 10 minutes | In use ~Oct 23; gate ~Nov 6 |
 | M2 Decide | Rank the next hour | Channel return per hour, verdicts, rebalance, ChannelPortfolio; action rules and ranked ActionQueue; Upwork connector (after the Explorer spike); Sources page | Portfolio verdicts shown for every channel older than 45 days; the Upwork stages the API exposes sync without manual taps | — |
 | M3 Money truth | Trust the money numbers | Cloudflare worker; Monobank (API + webhook); IBKR Flex; PayPal and Payoneer (CSV, or API where available); CSV framework; NBU FX; transfers and bank matching; projects, milestones, IncomeForecast; tax details; nightly MetricSnapshot | Net worth within 1% of real balances for 14 straight days, with the measurement defined at M3 start | — |
@@ -335,7 +337,8 @@ APIs. The web app never calls a source directly, so a slow bank API can't slow a
 | --- | --- | --- |
 | Language | TypeScript, strict mode | One language for agents across web, worker and core |
 | Web | Next.js (App Router), React, on Vercel | Server components read data; server actions for inputs |
-| Database | Neon Postgres + Drizzle ORM + SQL migrations; a Neon branch per preview deploy | Relational data, typed queries, isolated preview data |
+| Database | Neon Postgres + Drizzle ORM + SQL migrations | Relational data, typed queries |
+| Styling | Tailwind CSS v4 with a theme generated from Vector tokens; `cva` + `cn` for variants (D18) | One styling system; the build rejects values that aren't tokens |
 | Auth | Better Auth, Google OAuth, one allowed email | Single user; no email provider to run |
 | Jobs | None in P0–M1. M2's Upwork sync host is decided at M2 start. From M3: Cloudflare Workers (Cron Triggers + Queues) | The Monobank backfill and IBKR report polling outgrow request lifetimes |
 | Validation | Zod at every boundary (API input, connector payloads, env) | One schema gives agents both compile-time and runtime types |
@@ -374,18 +377,19 @@ docs/                     this spec, ADRs, runbooks
 ## Design system
 
 Port the [Vector design system](https://claude.ai/code/artifact/7ba22b06-4d50-4fb2-9ab2-f1f1ca8f3a7e)
-into `packages/ui` one-to-one; its previews are the acceptance reference for every component. **All
-33 components are ported in P0** (D9).
+into `packages/ui`; its previews are the acceptance reference for every component. **All 33
+components are rebuilt in P0** (D9) **with Tailwind, as atoms composed into the public components**
+(D18, `docs/adr/0002-styling.md`).
 
 **What to take from the artifact** (published paths under `project/`)
 
-- `tokens.json` → a build script generates `tokens.css` (CSS variables) and `tokens.ts` (typed
-  names). Never hand-copy values.
-- `components/bundle.css` → `packages/ui/styles.css`: the same `vx-` class names, kept as-is.
+- `tokens.json` → a build script generates the Tailwind `@theme` (defaults reset, tokens only) and
+  `tokens.ts` (typed names). Never hand-copy values.
+- `components/bundle.css` → reference only, for measurements and states. No `vx-` stylesheet ships.
 - `components/index.d.ts` → the public prop types. Keep component names and props identical so the
   READMEs stay valid.
-- `components/bundle.js` → rewrite each component as a typed TSX file with the same behaviour. The
-  bundle is plain `React.createElement` code, so the port is mechanical.
+- `components/bundle.js` → reference for behaviour. Each public component is rebuilt in TSX and
+  Tailwind from shared atoms, with the same behaviour.
 - Each `components/<Name>/README.md` becomes that component's doc comment and Storybook-style page.
 - The reference pages (Dashboard, Work, Acquisition, Lab) double as the layout spec for their
   routes.
@@ -393,7 +397,9 @@ into `packages/ui` one-to-one; its previews are the acceptance reference for eve
 
 **Rules agents must not break**
 
-- Colours come from tokens only; no new hex values in components.
+- Colours, spacing, radii, type and motion come from tokens only: token utilities, never arbitrary
+  values such as `bg-[#123456]` or `p-[13px]`.
+- Build small atoms and compose them; variants go through `cva` + `cn`, never piles of booleans.
 - Money shows its certainty with the `sure-*` tokens.
 - Up and down always carry ▲ ▼ and a sign; colour is never the only signal.
 - Channels and sources use two-letter monograms, never platform logos, colours or UI.
@@ -440,7 +446,7 @@ criteria (testable) · out of scope · depends on.
 **Definition of done**
 
 - Acceptance criteria pass as automated tests: unit for `core`, e2e or visual for UI.
-- Typecheck, lint and all tests green in CI; a preview deploy is linked in the PR.
+- Typecheck, lint and all tests green locally; the Vercel deploy from `master` succeeds (D19).
 - Works at 390 and 1280 px with keyboard only and with reduced motion.
 - No secrets, no TODOs without a ticket, and the spec is updated where behaviour changed.
 
@@ -451,8 +457,8 @@ and new tickets start at T34.
 
 | ID | Ticket | Milestone | Depends on | Done when |
 | --- | --- | --- | --- | --- |
-| T01 | Monorepo scaffold: pnpm workspaces, TS strict, lint, Vitest, Playwright, knip, CI, Vercel preview deploys with a Neon branch each | P0 | — | CI green on an empty web app; a PR gets a preview URL |
-| T02 | Token pipeline: tokens.json → tokens.css + tokens.ts | P0 | T01 | Generated values match the artifact exactly |
+| T01 | Monorepo scaffold: pnpm workspaces, TS strict, lint, Tailwind v4, Vitest, Playwright, knip, Vercel deploy on push | P0 | — | Gates and build green on an empty web app |
+| T02 | Token pipeline: tokens.json → Tailwind `@theme` (defaults reset) + tokens.ts | P0 | T01 | Generated values match the artifact exactly |
 | T03 | Port base UI: Button, Badge, Delta, SegmentedControl, Card, StatTile, Sparkline, ProgressRing, Icon | P0 | T02 | Visual tests pass against Vector previews |
 | T04 | Port data UI: TrendChart (with markers), FunnelChart, AllocationBar, HoldingsTable, SourceStatus | P0 | T03 | Visual tests pass; reduced motion honoured |
 | T34 | Port acquisition, money and action UI: ChannelPicker, ChannelLens, ChannelFunnel, ChannelHealth, ChannelPortfolio, ActionQueue, FreedomMeter, ClientCard, ProjectCard, PayoutBar, IncomeForecast | P0 | T04 | Visual tests pass |
@@ -523,8 +529,8 @@ and new tickets start at T34.
   one-hour spike and falls back to CSV or manual entry if blocked.
 - **Manual input fatigue.** M1 depends on logging everything. Quick-log must stay one tap, and the
   M1 gate measures exactly this.
-- **Google OAuth on preview deploys.** Redirect URIs must be registered exactly, and preview URLs
-  change on every deploy. T06 needs an OAuth proxy or a stable preview alias.
+- **Google OAuth on preview deploys**, if they return (D19). Redirect URIs must be registered
+  exactly, and preview URLs change on every deploy. That needs an OAuth proxy or a stable alias.
 - **Small samples.** With 20–60 events a month, most experiments end inconclusive. That's why the
   UI shows the chance of beating the baseline, not significance, and runs one experiment per metric
   at a time.

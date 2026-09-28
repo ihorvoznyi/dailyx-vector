@@ -12,10 +12,13 @@ Through M1 the outreach log and the balances exist **only in this database**, wi
 re-sync from, so losing data means losing history. From M2 the app holds read tokens to Upwork, and
 later to a bank, a broker and payment accounts. A leak exposes his finances and his clients.
 
-**Stack:** TypeScript 6 (strict) · pnpm workspaces · Next.js 16 App Router on Vercel · Neon Postgres +
-Drizzle · Better Auth (Google, one allowed email) · Zod · Vitest · Playwright · Cloudflare Workers
-from M3 · **Charter:** [`ENGINEERING.md`](.claude/ENGINEERING.md)
-**Design docs:** [`docs/SPEC.md`](docs/SPEC.md) (product, domain, metrics; decisions D1–D17) ·
+**Stack:** TypeScript 6 (strict) · pnpm workspaces (`@dailyx/*`) · Next.js 16 App Router on
+Vercel · Tailwind CSS v4 (token-only theme) · Neon Postgres + Drizzle · Better Auth (Google, one
+allowed email) · Zod · Vitest · Playwright · Cloudflare Workers from M3 · **Charter:**
+[`ENGINEERING.md`](.claude/ENGINEERING.md)
+**Branching:** commit straight to `master`; no CI for now. The gates run locally and in the
+pre-commit hook, and every push deploys to Vercel (D19)
+**Design docs:** [`docs/SPEC.md`](docs/SPEC.md) (product, domain, metrics; decisions D1–D19) ·
 [`docs/adr/`](docs/adr/) · design system: [Vector](https://claude.ai/code/artifact/7ba22b06-4d50-4fb2-9ab2-f1f1ca8f3a7e)
 **Working plan:** `PLAN.md` — read it at the start of every session
 
@@ -32,7 +35,6 @@ packages/connectors/  one folder per provider (arrives M2)
 packages/ui/          Vector tokens (generated) + components as TSX
 packages/config/      tsconfig, eslint, prettier presets
 docs/                 SPEC.md, adr/, runbooks
-.github/workflows/    CI                                                         ← approval required
 ```
 
 ---
@@ -84,10 +86,14 @@ that runs for minutes with no output is killed at 600 s.
 
 - UI comes from `packages/ui`. **YOU MUST NOT** invent components, colours or spacing. Match the
   Vector preview; its README and preview are the acceptance reference.
-- Colours come from tokens only. Up and down always carry ▲ ▼ and a sign. Channels use two-letter
-  monograms, never platform logos. Motion uses the `dur-*`/`ease-*` tokens and stops under
-  `prefers-reduced-motion`.
-- **NEVER** hand-edit the generated `tokens.css`/`tokens.ts`. Change `tokens.json` and regenerate.
+- Style with Tailwind **token utilities only**. **NEVER** use arbitrary values (`bg-[#123456]`,
+  `p-[13px]`) or inline style values. A missing value belongs in `tokens.json` (ADR 0002).
+- **YOU MUST** build small atoms and compose them into the public components. Public components keep
+  the names and props from Vector's `index.d.ts`. Variants go through `cva` + `cn`, never piles of
+  booleans.
+- Up and down always carry ▲ ▼ and a sign. Channels use two-letter monograms, never platform logos.
+  Motion uses the `dur-*`/`ease-*` tokens and stops under `prefers-reduced-motion`.
+- **NEVER** hand-edit the generated theme or `tokens.ts`. Change `tokens.json` and regenerate.
 
 ### General
 
@@ -144,13 +150,14 @@ a skill body.
 
 ## Environments
 
-Vercel builds previews with `NODE_ENV=production`, so `APP_ENV` is what tells preview from
-production. Seeding is allowed only when `APP_ENV` is unset or `preview`.
+Deployed builds run with `NODE_ENV=production`, so `APP_ENV` is what tells environments apart.
+Seeding is allowed only when `APP_ENV` is unset. Preview deploys aren't used while commits go
+straight to `master` (D19).
 
-| | dev | preview | production |
-|---|---|---|---|
-| `APP_ENV` | unset | `preview` | `production` |
-| Database | Neon `dev` branch | Neon branch per PR, seeded | Neon `main` |
+| | dev | production |
+|---|---|---|
+| `APP_ENV` | unset | `production` |
+| Database | Neon `dev` branch | Neon `main` |
 
 ---
 
