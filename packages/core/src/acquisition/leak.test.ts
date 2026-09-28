@@ -11,7 +11,7 @@ const LINKEDIN = [96 / 300, 31 / 96, 6 / 31, 1 / 6];
 const REFERRALS = [4 / 6, 3 / 4, 2 / 3, 1 / 2];
 
 // Unskipped by stage 11 (T22a).
-describe.skip('biggestLeak', () => {
+describe('biggestLeak', () => {
   it('finds the biggest leak for the Upwork reference funnel', () => {
     expect(
       biggestLeak({ rates: UPWORK, baseline: [0.55, 0.33, 0.5, 0.28], flaggedStages: [] }),

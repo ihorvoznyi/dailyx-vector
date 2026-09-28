@@ -6,7 +6,7 @@ import { deltasPp } from './delta';
 const near = (x: number, digits = 9) => expect.closeTo(x, digits) as number;
 
 // Unskipped by stage 11 (T22a).
-describe.skip('deltasPp', () => {
+describe('deltasPp', () => {
   it('computes percentage-point deltas for the Upwork reference funnel', () => {
     expect(deltasPp([112 / 180, 41 / 112, 19 / 41, 6 / 19], [0.55, 0.33, 0.5, 0.28])).toEqual([
       near(7.222222222222219, 6),

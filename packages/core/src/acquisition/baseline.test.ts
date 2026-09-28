@@ -45,7 +45,7 @@ const step = (
 ) => ({ from, to, value: value === null ? null : near(value), numerator, denominator, recordIds });
 
 // Unskipped by stage 11 (T22a).
-describe.skip('previousWindow', () => {
+describe('previousWindow', () => {
   it('returns the same-length window ending the day before start', () => {
     expect(previousWindow({ start: '2026-07-01', end: '2026-09-28' })).toEqual({
       start: '2026-04-02',
@@ -76,7 +76,7 @@ describe.skip('previousWindow', () => {
 });
 
 // Unskipped by stage 11 (T22a).
-describe.skip('baselineRates', () => {
+describe('baselineRates', () => {
   it('reads only the previous window and splits cleanly from stageRates', () => {
     const items = [
       ...funnel('up', [180, 112, 41, 19, 6], '2026-07-15'),

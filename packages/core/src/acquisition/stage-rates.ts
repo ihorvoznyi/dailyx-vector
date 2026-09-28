@@ -1,7 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unused-vars -- stub until stage 11 (T22a) */
-import type { DateWindow, IsoDate } from '../dates';
+import { daysBetween, type DateWindow, type IsoDate } from '../dates';
 import type { Metric } from '../result';
-import type { MaturityDays, OutreachItem, TimedStage, UniversalStage } from './stages';
+import {
+  UNIVERSAL_STAGES,
+  type MaturityDays,
+  type OutreachItem,
+  type TimedStage,
+  type UniversalStage,
+} from './stages';
 
 export interface StageRatesInput {
   /** One channel's items. The function does not filter by channel. */
@@ -23,7 +28,40 @@ export interface StageRate extends Metric<number | null, number, number> {
   readonly to: TimedStage;
 }
 
+/** Step i runs from stage i to stage i + 1. */
+const STEPS: readonly (readonly [UniversalStage, TimedStage])[] = [
+  ['reach', 'attention'],
+  ['attention', 'conversation'],
+  ['conversation', 'meeting'],
+  ['meeting', 'win'],
+];
+
 /** Four steps, Reach → Attention through Meeting → Win. */
 export function stageRates(input: StageRatesInput): StageRate[] {
-  throw new Error('not implemented: stageRates');
+  const { window, asOf, maturityDays } = input;
+  const inWindow = input.items.filter((i) => window.start <= i.sentOn && i.sentOn <= window.end);
+  return STEPS.map(([from, to], step) => {
+    const reachedFrom = inWindow.filter(
+      (i) => daysBetween(i.sentOn, asOf) >= maturityDays[to] && furthestStage(i) >= step,
+    );
+    const numerator = reachedFrom.filter((i) => furthestStage(i) > step).length;
+    const denominator = reachedFrom.length;
+    return {
+      from,
+      to,
+      value: denominator === 0 ? null : numerator / denominator,
+      numerator,
+      denominator,
+      recordIds: reachedFrom.map((i) => i.id),
+    };
+  });
+}
+
+/** Index of the furthest stage the item reached (0 = Reach); a later stage implies the earlier ones. */
+function furthestStage(item: OutreachItem): number {
+  let furthest = 0;
+  UNIVERSAL_STAGES.forEach((stage, index) => {
+    if (stage !== 'reach' && item.stageDates[stage] !== undefined) furthest = index;
+  });
+  return furthest;
 }

@@ -44,7 +44,7 @@ const step = (
 ) => ({ from, to, value: value === null ? null : near(value), numerator, denominator, recordIds });
 
 // Unskipped by stage 11 (T22a).
-describe.skip('stageRates', () => {
+describe('stageRates', () => {
   it('computes the four universal steps for the Upwork reference funnel', () => {
     expect(
       stageRates({
