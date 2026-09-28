@@ -1,0 +1,91 @@
+/*
+ * Vector motion (bundle.css keyframes, README "Motion"). Every animation starts from its hidden
+ * state and ends on the element's own styles, so reduced motion (base.css) and a missed frame
+ * both show the final value.
+ */
+@theme {
+  --animate-*: initial;
+  --animate-rise: rise var(--transition-duration-chart) var(--ease-out) backwards;
+  --animate-fade: fade var(--transition-duration-chart) var(--ease-out) 200ms backwards;
+  --animate-draw: draw var(--transition-duration-chart) var(--ease-out) backwards;
+  --animate-grow: grow var(--transition-duration-chart) var(--ease-out) backwards;
+  --animate-grow-y: grow-y var(--transition-duration-chart) var(--ease-out) backwards;
+  --animate-grow-meter: grow var(--transition-duration-meter) var(--ease-out) backwards;
+  --animate-ring: ring var(--transition-duration-chart) var(--ease-out) backwards;
+  --animate-from-mid: from-mid var(--transition-duration-chart) var(--ease-out) backwards;
+  --animate-spin: spin var(--transition-duration-chart) linear infinite;
+  --animate-ping-live: ping-live var(--transition-duration-ping) var(--ease-out) infinite;
+  --animate-flow: flow var(--transition-duration-flow) linear infinite;
+  --animate-panel-in: panel-in var(--transition-duration-base) var(--ease-out) backwards;
+  --animate-sheet-in: sheet-in var(--transition-duration-base) var(--ease-out) backwards;
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+  }
+  /* Paths drawn this way set pathLength="1" and stroke-dasharray="1". */
+  @keyframes draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+  }
+  @keyframes grow {
+    from {
+      transform: scaleX(0);
+    }
+  }
+  @keyframes grow-y {
+    from {
+      transform: scaleY(0);
+    }
+  }
+  /* The ring sets --ring-empty to its circumference. */
+  @keyframes ring {
+    from {
+      stroke-dashoffset: var(--ring-empty);
+    }
+  }
+  @keyframes from-mid {
+    from {
+      left: 50%;
+    }
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes ping-live {
+    0% {
+      box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-up) 50%, transparent);
+    }
+    70%,
+    100% {
+      box-shadow: 0 0 0 7px transparent;
+    }
+  }
+  @keyframes flow {
+    to {
+      stroke-dashoffset: -28;
+    }
+  }
+  @keyframes panel-in {
+    from {
+      opacity: 0;
+      transform: translateX(16px);
+    }
+  }
+  @keyframes sheet-in {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+  }
+}

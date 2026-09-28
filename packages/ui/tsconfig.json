@@ -1,6 +1,8 @@
 {
   "extends": "@dailyx/config/tsconfig.base.json",
   "compilerOptions": {
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
     "types": ["node"]
   },
   "include": ["src", "scripts"]

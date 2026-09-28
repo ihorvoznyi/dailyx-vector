@@ -1,0 +1,17 @@
+<!-- @dsCard group="Status" height=150 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>SourceStatus — preview</title>
+<style>body{margin:0;background:var(--bg-000);} #root{padding:16px;}</style></head>
+<body>
+<div id="root"></div>
+<script>
+var V = window.Vector, h = React.createElement;
+ReactDOM.createRoot(document.getElementById('root')).render(h('div',{style:{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:12}},
+  h(V.SourceStatus,{name:'Monobank',mark:'MB',detail:'2 accounts',lastSync:'2m ago',status:'live'}),
+  h(V.SourceStatus,{name:'Interactive Brokers',mark:'IB',detail:'7 positions',lastSync:'now',status:'syncing'}),
+  h(V.SourceStatus,{name:'PayPal',mark:'PP',detail:'USD',lastSync:'3d ago',status:'stale'}),
+  h(V.SourceStatus,{name:'Upwork',mark:'UW',detail:'Token expired',lastSync:'1w ago',status:'error'})));
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+<!-- @dsCard group="Work & money" height=150 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>PayoutBar — preview</title>
+<style>body{margin:0;background:var(--bg-000);} #root{padding:16px;}</style></head>
+<body>
+<div id="root"></div>
+<script>
+var V = window.Vector, h = React.createElement;
+var D = { received: 1500, secured: 3500, committed: 4000, pipeline: 1800 };
+ReactDOM.createRoot(document.getElementById('root')).render(h('div', { style: { maxWidth: 560, display: 'flex', flexDirection: 'column', gap: 24 } }, h(V.PayoutBar, { parts: D, label: 'All work in flight' }), h(V.PayoutBar, { parts: { received: 1500, secured: 3500, committed: 4000 }, compact: true, legend: false, label: 'Compact' })));
+</script>
+</body>
+</html>

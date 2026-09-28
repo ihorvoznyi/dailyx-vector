@@ -1,0 +1,13 @@
+<!-- @dsCard group="Acquisition" height=470 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>ChannelPicker — preview</title>
+<style>body{margin:0;background:var(--bg-000);} #root{padding:16px;}</style></head>
+<body>
+<div id="root"></div>
+<script>
+var V = window.Vector, h = React.createElement;
+ReactDOM.createRoot(document.getElementById('root')).render(h(V.Card, { eyebrow: 'Setup · step 1 of 2', title: 'Where do you get clients?', meta: 'Pick what you actually work. The dashboard speaks each channel\u2019s language.' }, h(V.ChannelPicker, { value: { upwork: 8, email: 5 }, onDone: function () {} })));
+</script>
+</body>
+</html>

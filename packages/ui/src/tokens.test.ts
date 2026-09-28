@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 import { buildTokens } from '../scripts/build-tokens';
+import extend from '../tokens/extend.json';
 import source from '../tokens/tokens.json';
 import { tokens } from './tokens';
 
@@ -38,14 +39,19 @@ const strip = (name: string, prefix: string) =>
 const scale = (list: { name: string; value: string }[], prefix: string) =>
   Object.fromEntries(list.map((t) => [strip(t.name, prefix), resolveJson(t.value)]));
 
+// extend.json names are used verbatim.
+const own = (list: { name: string; value: string }[]) =>
+  Object.fromEntries(list.map((t) => [t.name, t.value]));
+
 const styles = source.type.groups.flatMap((g) => g.styles.map((s) => ({ family: g.family, ...s })));
 
-// The naming contract: tokens.json name → theme variable and tokens.ts key.
+// The naming contract: tokens.json and extend.json names → theme variable and tokens.ts key.
 const expected = {
-  color: scale(source.color.tokens, ''),
-  spacing: scale(source.spacing.tokens, 'space-'),
-  radius: scale(source.radius.tokens, 'radius-'),
-  shadow: scale(source.shadow.tokens, 'shadow-'),
+  color: { ...scale(source.color.tokens, ''), ...own(extend.color.tokens) },
+  spacing: { ...scale(source.spacing.tokens, 'space-'), ...own(extend.spacing.tokens) },
+  radius: { ...scale(source.radius.tokens, 'radius-'), ...own(extend.radius.tokens) },
+  shadow: { ...scale(source.shadow.tokens, 'shadow-'), ...own(extend.shadow.tokens) },
+  dropShadow: own(extend.dropShadow.tokens),
   font: source.type.families,
   text: Object.fromEntries(
     styles.map((s) => [
@@ -59,27 +65,33 @@ const expected = {
       },
     ]),
   ),
-  duration: scale(source.duration.tokens, 'dur-'),
+  fontSize: own(extend.fontSize.tokens),
+  leading: own(extend.leading.tokens),
+  tracking: own(extend.tracking.tokens),
+  duration: { ...scale(source.duration.tokens, 'dur-'), ...own(extend.duration.tokens) },
   ease: scale(source.easing.tokens, 'ease-'),
+  breakpoint: own(extend.breakpoint.tokens),
+  gridCols: own(extend.gridCols.tokens),
 };
 
 const vars = (namespace: string, values: Record<string, string>) =>
   Object.entries(values).map(([key, value]): [string, string] => [`--${namespace}-${key}`, value]);
 
 describe('token pipeline', () => {
-  it('committed theme.css and tokens.ts equal a fresh generation from tokens.json', () => {
-    const generated = buildTokens(source);
+  it('committed theme.css and tokens.ts equal a fresh generation from the token sources', () => {
+    const generated = buildTokens(source, extend);
     expect(generated.css).toBe(theme);
     expect(generated.ts).toBe(read('./tokens.ts'));
   });
 
-  it('every theme variable and tokens.ts value resolves to its tokens.json value', () => {
+  it('every theme variable and tokens.ts value resolves to its source value', () => {
     const expectedCss = new Map<string, string | undefined>([
       ['--spacing-0', '0px'],
       ...vars('color', expected.color),
       ...vars('spacing', expected.spacing),
       ...vars('radius', expected.radius),
       ...vars('shadow', expected.shadow),
+      ...vars('drop-shadow', expected.dropShadow),
       ...vars('font', expected.font),
       ...styles.flatMap((s): [string, string][] => [
         [`--text-${s.name}`, s.fontSize],
@@ -89,13 +101,23 @@ describe('token pipeline', () => {
           ? [[`--text-${s.name}--letter-spacing`, s.letterSpacing] as [string, string]]
           : []),
       ]),
+      ...vars('text', expected.fontSize),
+      ...vars('leading', expected.leading),
+      ...vars('tracking', expected.tracking),
       ...vars('transition-duration', expected.duration),
       ...vars('ease', expected.ease),
+      ...vars('breakpoint', expected.breakpoint),
+      ...vars('grid-template-columns', expected.gridCols),
     ]);
     const actualCss = new Map([...declared.keys()].map((name) => [name, resolveCss(name)]));
 
     expect(actualCss).toEqual(expectedCss);
     expect(tokens).toEqual(expected);
+  });
+
+  it('refuses an extend.json name that redefines a token', () => {
+    const clash = { ...extend, spacing: { tokens: [{ name: '4', value: '15px' }] } };
+    expect(() => buildTokens(source, clash)).toThrow('spacing "4" already exists');
   });
 
   it('keeps tokens.json references as var() aliases', () => {

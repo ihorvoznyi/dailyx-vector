@@ -1,0 +1,14 @@
+<!-- @dsCard group="Controls" height=64 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>SegmentedControl — preview</title>
+<style>body{margin:0;background:var(--bg-000);} #root{padding:16px;}</style></head>
+<body>
+<div id="root"></div>
+<script>
+var V = window.Vector, h = React.createElement;
+function Demo(){ var s=React.useState('30D'); return h('div',{className:'vx-row'}, h(V.SegmentedControl,{options:['7D','30D','90D','1Y','ALL'],value:s[0],onChange:s[1]}), h('span',{className:'vx-faint',style:{fontSize:12}},'Range: '+s[0])); }
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

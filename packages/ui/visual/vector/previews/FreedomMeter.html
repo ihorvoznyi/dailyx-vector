@@ -1,0 +1,13 @@
+<!-- @dsCard group="Work & money" height=330 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>FreedomMeter — preview</title>
+<style>body{margin:0;background:var(--bg-000);} #root{padding:16px;}</style></head>
+<body>
+<div id="root"></div>
+<script>
+var V = window.Vector, h = React.createElement;
+ReactDOM.createRoot(document.getElementById('root')).render(h(V.Card, { eyebrow: 'Freedom', title: 'How close am I to not needing to trade hours?' }, h(V.FreedomMeter, { monthlyCost: 3800, recurring: 2820, active: 4100, runwayMonths: 5.9, hoursPerWeek: 46, targetHours: 25, effectiveRate: 78, recurringGrowth: 240 })));
+</script>
+</body>
+</html>

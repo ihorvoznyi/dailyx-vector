@@ -1,0 +1,14 @@
+<!-- @dsCard group="Stats" height=96 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>ProgressRing — preview</title>
+<style>body{margin:0;background:var(--bg-000);} #root{padding:16px;}</style></head>
+<body>
+<div id="root"></div>
+<script>
+var V = window.Vector, h = React.createElement;
+ReactDOM.createRoot(document.getElementById('root')).render(h('div',{className:'vx-row',style:{gap:24}},
+  h(V.ProgressRing,{value:0.68,size:64,label:'Monthly revenue goal'}), h(V.ProgressRing,{value:0.34,tone:'warn',label:'Follower goal'}), h(V.ProgressRing,{value:1,label:'Skill',center:'5/5'})));
+</script>
+</body>
+</html>

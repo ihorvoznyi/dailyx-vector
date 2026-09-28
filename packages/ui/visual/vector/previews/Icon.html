@@ -1,0 +1,14 @@
+<!-- @dsCard group="Foundations" height=330 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Icon — preview</title>
+<style>body{margin:0;background:var(--bg-000);} #root{padding:16px;}</style></head>
+<body>
+<div id="root"></div>
+<script>
+var V = window.Vector, h = React.createElement;
+ReactDOM.createRoot(document.getElementById('root')).render(h('div', { className: 'vx-icon-grid' },
+  V.Icon.names.map(function (n) { return h('div', { key: n, className: 'vx-icon-cell' }, h(V.Icon, { name: n, size: 22 }), h('span', null, n)); })));
+</script>
+</body>
+</html>

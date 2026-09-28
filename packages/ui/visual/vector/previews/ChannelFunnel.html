@@ -1,0 +1,67 @@
+<!-- @dsCard group="Acquisition" height=640 subtitle="Native words on top, universal stage underneath" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>ChannelFunnel — preview</title>
+<style>body{margin:0;background:var(--bg-000);} #root{padding:16px;}</style></head>
+<body>
+<div id="root"></div>
+<script>
+var V = window.Vector, h = React.createElement;
+var BASE = 65;
+function F(id, values, flags) { var c = V.channels[id]; return c.stages.map(function (s, i) { return { label: s, value: values[i], universal: V.universalStages[i], flag: flags && flags[i] ? c.flags[i] : null }; }); }
+function wk(vals) { var d = Date.parse('2026-07-06T00:00:00Z'); return vals.map(function (y, i) { var t = new Date(d + i * 7 * 864e5); return { x: t.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }), y: y }; }); }
+var CH = {
+  upwork: { funnel: [180, 112, 41, 19, 6], baseline: [0.55, 0.33, 0.5, 0.28],
+    health: [
+      { label: 'Connects', value: '86', note: '≈ 5 more proposals a week for 2 weeks', status: 'ok', meter: [86, 200] },
+      { label: 'Job Success', value: '96%', note: 'Protect it: ask happy clients for feedback', status: 'ok' },
+      { label: 'Invites · 30d', value: '4', note: 'Clients came to me. Reply first', status: 'ok' },
+      { label: 'First reply time', value: '3.2h', note: 'Median. H-06 tested <1h: inconclusive', status: 'watch' }],
+    moves: [
+      { id: 'u1', title: 'Reply to 2 clients waiting 5h+', context: 'Messages', kind: 'Reply', amount: 4000, probability: 0.15, hours: 0.5 },
+      { id: 'u2', title: 'Follow up with Orbit after the interview', context: 'Orbit Labs', kind: 'Close', amount: 6000, probability: 0.3, hours: 0.3 },
+      { id: 'u3', title: 'Propose on 3 fintech jobs posted under an hour ago', context: 'Job feed', kind: 'Propose', amount: 3000, probability: 0.08, hours: 1.5 },
+      { id: 'u4', title: 'Ask Northwind for feedback after milestone 2', context: 'Northwind Pay', kind: 'Reputation', amount: 600, probability: 0.8, hours: 0.2 }],
+    trendName: 'Viewed ÷ sent', trend: wk([54, 55, 53, 56, 55, 57, 58, 61, 63, 62, 64, 65, 64]), markers: [{ at: 7, label: 'H-07 template B', tone: 'info' }] },
+  email: { funnel: [2400, 1050, 72, 14, 2], flags: [0, 1], baseline: [0.44, 0.085, 0.2, 0.11],
+    health: [
+      { label: 'Bounce rate', value: '1.8%', note: 'Keep under 2% or verify the list', status: 'ok' },
+      { label: 'Positive replies', value: '1.3%', unit: 'of sent', note: 'Down from 2.1% in July', status: 'watch' },
+      { label: 'Sends / inbox / day', value: '38', note: 'Cap I set: 40', status: 'ok', meter: [38, 40] },
+      { label: 'Domains ready', value: '2 of 3', note: 'Domain 3 still warming', status: 'watch', meter: [2, 3] }],
+    moves: [
+      { id: 'e1', title: 'Answer 4 positive replies', context: 'Inbox', kind: 'Reply', amount: 3000, probability: 0.25, hours: 0.7 },
+      { id: 'e2', title: 'Rewrite step 2 of the fintech sequence', context: 'Sequence', kind: 'Improve', amount: 2500, probability: 0.3, hours: 2 },
+      { id: 'e3', title: 'Finish warming domain 3', context: 'Deliverability', kind: 'Setup', amount: 800, probability: 0.5, hours: 0.5 },
+      { id: 'e4', title: 'Source and verify 200 new leads', context: 'List', kind: 'Source', amount: 3000, probability: 0.15, hours: 3 }],
+    trendName: 'Replied ÷ sent', trend: wk([3.4, 3.3, 3.5, 3.2, 3.1, 3.3, 3.0, 2.9, 2.8, 3.0, 2.9, 2.8, 3.0]), markers: [{ at: 6, label: 'Sequence v2', tone: 'warn' }], fmt: { suffix: '%', decimals: 1 } },
+  linkedin: { funnel: [300, 96, 31, 6, 1], baseline: [0.3, 0.36, 0.2, 0.2],
+    health: [
+      { label: 'Invites this week', value: '62', note: 'Cap I set: 100', status: 'ok', meter: [62, 100] },
+      { label: 'Acceptance', value: '32%', note: '90-day average 30%', status: 'ok' },
+      { label: 'Pending invites', value: '210', note: 'Withdraw ones older than 3 weeks', status: 'watch' },
+      { label: 'DMs waiting', value: '3', note: 'Oldest: 2 days', status: 'fix' }],
+    moves: [
+      { id: 'l1', title: 'Reply to 3 DMs, oldest first', context: 'Messages', kind: 'Reply', amount: 2400, probability: 0.15, hours: 0.4 },
+      { id: 'l2', title: 'Withdraw 120 stale invites', context: 'Hygiene', kind: 'Hygiene', amount: 300, probability: 0.5, hours: 0.3 },
+      { id: 'l3', title: 'Send 20 invites to fintech founders', context: 'Reach', kind: 'Reach', amount: 2400, probability: 0.03, hours: 1 },
+      { id: 'l4', title: 'Post a case-study carousel', context: 'Content', kind: 'Post', amount: 2400, probability: 0.05, hours: 2 }],
+    trendName: 'Accepted ÷ invites', trend: wk([29, 30, 31, 28, 30, 32, 31, 33, 32, 31, 33, 32, 32]), markers: [] },
+  referrals: { funnel: [6, 4, 3, 2, 1], baseline: null,
+    health: [
+      { label: 'Happy clients not asked', value: '3', note: 'Lumen, Kite, Acme', status: 'watch' },
+      { label: 'Last ask', value: '41 days', note: 'Aim for one ask every 2 weeks', status: 'watch' }],
+    moves: [{ id: 'r1', title: 'Ask Lumen for one intro to a peer', context: 'Lumen Health', kind: 'Ask', amount: 5000, probability: 0.35, hours: 0.3 }],
+    trendName: 'Intros per month', trend: wk([0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0]), markers: [] }
+};
+var PORTFOLIO = [
+  { id: 'upwork', name: 'Upwork', mark: 'UW', hoursPerWeek: 8, won: 14200, cost: 310, costLabel: 'Connects', wins: 6, daysToFirst: 9, maxHours: 15 },
+  { id: 'email', name: 'Cold email', mark: 'CE', hoursPerWeek: 5, won: 7500, cost: 290, costLabel: 'tools & domains', wins: 2, daysToFirst: 34 },
+  { id: 'linkedin', name: 'LinkedIn', mark: 'LI', hoursPerWeek: 6, won: 2400, cost: 300, costLabel: 'sales tools', wins: 1, daysToFirst: 52 },
+  { id: 'referrals', name: 'Referrals', mark: 'RF', hoursPerWeek: 1, won: 4800, cost: 0, wins: 1, daysToFirst: 12, maxHours: 2 }
+];
+
+ReactDOM.createRoot(document.getElementById('root')).render(h('div', { className: 'vx-stack', style: { gap: 16 } }, h(V.Card, { eyebrow: 'Upwork · last 90 days', title: 'Proposals → Hired' }, h(V.ChannelFunnel, { stages: F('upwork', CH.upwork.funnel), baseline: CH.upwork.baseline })), h(V.Card, { eyebrow: 'Cold email · last 90 days', title: 'Emails → Won', meta: 'Same component, the channel\u2019s own words' }, h(V.ChannelFunnel, { stages: F('email', CH.email.funnel, CH.email.flags), baseline: CH.email.baseline }))));
+</script>
+</body>
+</html>

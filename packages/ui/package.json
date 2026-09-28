@@ -4,6 +4,7 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
+    "./previews": "./src/previews.ts",
     "./styles.css": "./src/styles/index.css"
   },
   "scripts": {
@@ -12,10 +13,18 @@
   },
   "dependencies": {
     "@fontsource/geist": "5.3.0",
-    "@fontsource/geist-mono": "5.3.0"
+    "@fontsource/geist-mono": "5.3.0",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "tailwind-merge": "3.7.0"
+  },
+  "peerDependencies": {
+    "react": "^19.3.0"
   },
   "devDependencies": {
     "@dailyx/config": "workspace:*",
-    "@types/node": "24.19.0"
+    "@types/node": "24.19.0",
+    "@types/react": "19.3.0",
+    "react": "19.3.0"
   }
 }

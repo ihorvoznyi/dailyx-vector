@@ -4,3 +4,4 @@ pnpm-lock.yaml
 packages/ui/tokens/tokens.json
 packages/ui/src/styles/theme.css
 packages/ui/src/tokens.ts
+packages/ui/visual/vector/

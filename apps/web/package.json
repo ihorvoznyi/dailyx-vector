@@ -9,7 +9,8 @@
     "dev": "next dev",
     "build": "next build",
     "typecheck": "next typegen && tsc --noEmit",
-    "test:e2e": "playwright test --pass-with-no-tests"
+    "test:e2e": "playwright test --pass-with-no-tests",
+    "refs": "VECTOR_REFS=1 playwright test"
   },
   "dependencies": {
     "@dailyx/ui": "workspace:*",

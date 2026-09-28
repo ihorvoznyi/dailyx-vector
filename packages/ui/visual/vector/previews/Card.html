@@ -1,0 +1,15 @@
+<!-- @dsCard group="Layout" height=170 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Card — preview</title>
+<style>body{margin:0;background:var(--bg-000);} #root{padding:16px;}</style></head>
+<body>
+<div id="root"></div>
+<script>
+var V = window.Vector, h = React.createElement;
+ReactDOM.createRoot(document.getElementById('root')).render(h('div',{style:{maxWidth:420}},
+  h(V.Card,{eyebrow:'Monthly',title:'Revenue',meta:'Upwork + direct · synced 4m ago',action:h(V.Button,{variant:'quiet',size:'sm'},'Details')},
+    h('p',{className:'vx-muted',style:{margin:0}},'Cards hold one question each. Title says what, meta says where the data came from and when.'))));
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+<!-- @dsCard group="Status" height=56 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Badge — preview</title>
+<style>body{margin:0;background:var(--bg-000);} #root{padding:16px;}</style></head>
+<body>
+<div id="root"></div>
+<script>
+var V = window.Vector, h = React.createElement;
+ReactDOM.createRoot(document.getElementById('root')).render(h('div',{className:'vx-row'},
+  h(V.Badge,null,'Monobank'), h(V.Badge,{tone:'up'},'On pace'), h(V.Badge,{tone:'down'},'Behind'), h(V.Badge,{tone:'warn'},'Stale'), h(V.Badge,{tone:'info'},'Syncing')));
+</script>
+</body>
+</html>

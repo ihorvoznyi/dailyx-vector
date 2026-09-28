@@ -1,0 +1,14 @@
+<!-- @dsCard group="Acquisition" height=90 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>ChannelLens — preview</title>
+<style>body{margin:0;background:var(--bg-000);} #root{padding:16px;}</style></head>
+<body>
+<div id="root"></div>
+<script>
+var V = window.Vector, h = React.createElement;
+function Demo(){ var s = React.useState('upwork'); return h(V.ChannelLens, { value: s[0], onChange: s[1], items: [{ id: 'all', name: 'All channels', mark: '∑', sub: '4 bets · 20h/wk', badge: '9', badgeTone: 'warn' }, { id: 'upwork', name: 'Upwork', mark: 'UW', sub: '8h/wk', badge: '2' }, { id: 'email', name: 'Cold email', mark: 'CE', sub: '5h/wk', badge: '4' }, { id: 'linkedin', name: 'LinkedIn', mark: 'LI', sub: '6h/wk', badge: '3', badgeTone: 'warn' }, { id: 'referrals', name: 'Referrals', mark: 'RF', sub: '1h/wk' }] }); }
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

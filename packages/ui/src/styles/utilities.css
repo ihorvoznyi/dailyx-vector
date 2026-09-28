@@ -1,0 +1,39 @@
+/* Styles Tailwind has no utility for, named after what they draw. Values from bundle.css. */
+@utility clip-hex {
+  clip-path: polygon(22% 0, 78% 0, 100% 50%, 78% 100%, 22% 100%, 0 50%);
+}
+
+@utility bg-dot-grid {
+  background-image: radial-gradient(circle, var(--color-line-strong) 1px, transparent 1.2px);
+}
+
+@utility bg-hatch {
+  background-image: repeating-linear-gradient(
+    135deg,
+    var(--color-sure-pipeline) 0 2px,
+    transparent 2px 6px
+  );
+}
+
+@utility select-chevron {
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--color-ink-muted) 50%),
+    linear-gradient(135deg, var(--color-ink-muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 16px) 16px,
+    calc(100% - 11px) 16px;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility vertical-rl {
+  writing-mode: vertical-rl;
+}

@@ -4,7 +4,13 @@ import nextTs from 'eslint-config-next/typescript';
 import tseslint from 'typescript-eslint';
 
 export default defineConfig([
-  globalIgnores(['**/.next/', '**/next-env.d.ts', '**/playwright-report/', '**/test-results/']),
+  globalIgnores([
+    '**/.next/',
+    '**/next-env.d.ts',
+    '**/playwright-report/',
+    '**/test-results/',
+    'packages/ui/visual/vector/',
+  ]),
   ...nextVitals,
   ...nextTs,
   {

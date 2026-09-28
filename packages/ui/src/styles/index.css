@@ -4,4 +4,6 @@
 @import '@fontsource/geist-mono/400.css';
 @import '@fontsource/geist-mono/500.css';
 @import './theme.css';
+@import './motion.css';
+@import './utilities.css';
 @import './base.css';

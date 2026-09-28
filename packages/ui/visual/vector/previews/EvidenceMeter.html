@@ -1,0 +1,15 @@
+<!-- @dsCard group="Hypotheses" height=230 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>EvidenceMeter — preview</title>
+<style>body{margin:0;background:var(--bg-000);} #root{padding:16px;}</style></head>
+<body>
+<div id="root"></div>
+<script>
+var V = window.Vector, h = React.createElement;
+ReactDOM.createRoot(document.getElementById('root')).render(h('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24, maxWidth: 1000 } },
+  h(V.EvidenceMeter, { value: 0.97 }), h(V.EvidenceMeter, { value: 0.87 }), h(V.EvidenceMeter, { value: 0.58 }), h(V.EvidenceMeter, { value: 0.04 }),
+  h(V.EvidenceMeter, { value: 0.71, compact: true, label: 'H-09 · compact' })));
+</script>
+</body>
+</html>

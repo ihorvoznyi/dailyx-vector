@@ -1,0 +1,48 @@
+<!-- @dsCard group="Work & money" height=300 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>ClientCard — preview</title>
+<style>body{margin:0;background:var(--bg-000);} #root{padding:16px;}</style></head>
+<body>
+<div id="root"></div>
+<script>
+var V = window.Vector, h = React.createElement;
+var BASE = 65;
+var CLIENTS = [
+  { id: 'northwind', name: 'Northwind Pay', mark: 'NP', kind: 'project', source: 'Upwork', status: 'active', building: 'Merchant analytics dashboard, milestone 2 of 4', payout: { received: 1500, secured: 3500, committed: 4000 }, earned: 5200, effectiveRate: 71, next: { amount: 3500, date: 'Oct 9' } },
+  { id: 'lumen', name: 'Lumen Health', mark: 'LH', kind: 'retainer', source: 'Referral', status: 'active', building: 'Intake automation + monthly reporting', mrr: 2400, earned: 9600, effectiveRate: 100, next: { amount: 2400, date: 'Oct 1' } },
+  { id: 'kite', name: 'Kite Analytics', mark: 'KA', kind: 'hourly', source: 'Cold email', status: 'active', building: 'Data pipeline fixes, capped at 10h/week', payout: { secured: 1300, committed: 2600 }, earned: 3900, effectiveRate: 65, next: { amount: 1300, date: 'Oct 3' } },
+  { id: 'kit', name: 'Workflow Kit', mark: 'WK', kind: 'product', source: 'Gumroad', status: 'active', building: 'Automation templates · 38 buyers', mrr: 420, earned: 2980, effectiveRate: 140, next: { amount: 420, date: 'Oct 15' } },
+  { id: 'orbit', name: 'Orbit Labs', mark: 'OL', kind: 'lead', source: 'X / Twitter', status: 'lead', building: 'Proposal out: AI support triage ($6,000, 30% odds)', payout: { pipeline: 1800 }, earned: 0, effectiveRate: null, next: null }
+];
+var ACTIONS = [
+  { id: 'a1', title: 'Invoice Kite for September hours', context: 'Kite Analytics', kind: 'Cash in', amount: 1300, probability: 1, hours: 0.17 },
+  { id: 'a2', title: 'Follow up on the Orbit proposal', context: 'Orbit Labs', kind: 'Close', amount: 6000, probability: 0.3, hours: 0.5 },
+  { id: 'a3', title: 'Pitch Lumen a reporting add-on', context: 'Lumen Health', kind: 'Expand', amount: 800, probability: 0.5, recurring: true, hours: 2 },
+  { id: 'a4', title: 'Ship the milestone 2 demo', context: 'Northwind Pay', kind: 'Deliver', amount: 3500, probability: 0.95, hours: 12 },
+  { id: 'a5', title: 'Add two templates to Workflow Kit', context: 'Workflow Kit', kind: 'Build', amount: 120, probability: 0.6, recurring: true, hours: 6 },
+  { id: 'a6', title: 'Take extra Kite hours this week', context: 'Kite Analytics', kind: 'Bill', amount: 650, probability: 1, hours: 10 },
+  { id: 'a7', title: 'Redesign my personal site', context: 'Brand', kind: 'Nice to have', amount: 300, probability: 0.3, hours: 14 }
+];
+var PROJECT = { title: 'Merchant analytics dashboard', client: 'Northwind Pay', kind: 'project', summary: 'Stripe and ledger data in one live revenue view for 40 merchants', due: 'Nov 14',
+  payout: { received: 1500, secured: 3500, committed: 4000 }, progress: 0.38, hoursLogged: 64, hoursEstimate: 140,
+  milestones: [{ title: 'Discovery & data audit', amount: 1500, status: 'paid' }, { title: 'MVP dashboard', amount: 3500, status: 'active' }, { title: 'Integrations', amount: 2500, status: 'next' }, { title: 'Handover & docs', amount: 1500, status: 'next' }] };
+var WEEKS = [
+  { label: 'Sep 28', received: 420, secured: 3700, items: ['Lumen retainer · Oct 1', 'Kite invoice · Oct 3', 'Workflow Kit sales'] },
+  { label: 'Oct 5', secured: 3500, committed: 650, items: ['Northwind M2 (escrow)', 'Kite hours'] },
+  { label: 'Oct 12', committed: 1070, items: ['Kite hours', 'Workflow Kit payout'] },
+  { label: 'Oct 19', committed: 650, items: ['Kite hours'] },
+  { label: 'Oct 26', committed: 650, pipeline: 1800, items: ['Kite hours', 'Orbit Labs (30% × $6,000)'] },
+  { label: 'Nov 2', committed: 3050, items: ['Lumen retainer', 'Kite hours'] },
+  { label: 'Nov 9', committed: 3150, items: ['Northwind M3', 'Kite hours'] },
+  { label: 'Nov 16', committed: 1070, items: ['Kite hours', 'Workflow Kit payout'] },
+  { label: 'Nov 23', committed: 650, items: ['Kite hours'] },
+  { label: 'Nov 30', committed: 2150, items: ['Northwind handover', 'Kite hours'] },
+  { label: 'Dec 7', committed: 2400, pipeline: 600, items: ['Lumen retainer', 'Pipeline, weighted'] },
+  { label: 'Dec 14', pipeline: 900, items: ['Pipeline, weighted'] }
+];
+
+ReactDOM.createRoot(document.getElementById('root')).render(h('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 16 } }, CLIENTS.slice(0, 4).map(function (c, i) { return h(V.ClientCard, { key: c.id, client: c, baselineRate: BASE, delay: i * 60 }); })));
+</script>
+</body>
+</html>

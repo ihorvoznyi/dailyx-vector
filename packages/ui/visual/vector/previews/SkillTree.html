@@ -1,0 +1,69 @@
+<!-- @dsCard group="Skill tree" height=760 subtitle="Canvas: pan, zoom, drag tiles, open a tile to track it" -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>SkillTree — preview</title>
+<style>body{margin:0;background:var(--bg-000);} #root{padding:16px;}</style></head>
+<body>
+<div id="root"></div>
+<script>
+var V = window.Vector, h = React.createElement;
+function S(labels, done) { return labels.map(function (l, i) { return { id: 's' + i, label: l, done: i < done }; }); }
+var TREE = [
+  /* row 0 — advanced + your own goals */
+  { id: 'g1', goal: true, col: 0, row: 0 },
+  { id: 'remote', title: 'Work from anywhere', icon: 'globe', col: 1, row: 0, requires: ['retainer'], description: 'Income covers life with no fixed location.', steps: S(['3 months of location-free income', 'Travel for a month while delivering'], 0) },
+  { id: 'g2', goal: true, col: 2, row: 0 },
+  { id: 'agency', title: 'Team of five', icon: 'users', col: 3, row: 0, requires: ['hire'], description: 'Five people delivering under your name.', maxLevel: 5, level: 0 },
+  { id: 'g3', goal: true, col: 4, row: 0 },
+  { id: 'stage', title: 'Speak on stage', icon: 'megaphone', col: 5, row: 0, requires: ['teach'], steps: S(['Submit a talk', 'Give the talk'], 0) },
+  { id: 'g4', goal: true, col: 6, row: 0 },
+  /* row 1 */
+  { id: 'retainer', title: 'Retainer clients', icon: 'repeat', col: 0, row: 1, requires: ['discovery'], description: 'Monthly recurring work that renews without a new proposal.', maxLevel: 3, level: 0 },
+  { id: 'product', title: 'Productized offer', icon: 'layers', col: 1, row: 1, requires: ['pricing'], steps: S(['Fixed scope', 'Fixed price', 'Checkout page', 'First sale'], 0) },
+  { id: 'hire', title: 'Hire a contractor', icon: 'user', col: 2, row: 1, requires: ['k10'], steps: S(['Write the brief', 'Trial project', 'First delegated delivery'], 0) },
+  { id: 'k10', title: '$10K month', icon: 'money', col: 3, row: 1, requires: ['k5'], description: 'Revenue for a single calendar month.', metric: { label: 'Revenue · Sep', source: 'Upwork + invoices', current: 6935, target: 10000, format: { prefix: '$' } } },
+  { id: 'teach', title: 'Teach a workshop', icon: 'cap', col: 4, row: 1, requires: ['content'], steps: S(['Outline', 'Announce', 'Run it'], 0) },
+  { id: 'launch', title: 'Launch a product', icon: 'rocket', col: 5, row: 1, requires: ['product'], steps: S(['Waitlist', 'Beta', 'Public launch'], 0) },
+  { id: 'nw100', title: 'Net worth $100K', icon: 'bank', col: 6, row: 1, requires: ['invest'], metric: { label: 'Distributed net worth', source: 'Monobank · IBKR · PayPal', current: 49386, target: 100000, format: { prefix: '$' } } },
+  /* row 2 */
+  { id: 'referral', title: 'Referral loop', icon: 'repeat', col: 0, row: 2, requires: ['reviews'], steps: S(['Ask every happy client', 'First referred contract'], 1) },
+  { id: 'pricing', title: 'Value pricing', icon: 'target', col: 1, row: 2, requires: ['casestudy'], maxLevel: 3, level: 0 },
+  { id: 'close5', title: '5 contracts / month', icon: 'pen', col: 2, row: 2, requires: ['views'], metric: { label: 'Contracts · 30d', source: 'Upwork', current: 5, target: 5 } },
+  { id: 'k5', title: '$5K month', icon: 'money', col: 3, row: 2, requires: ['firstclient'], metric: { label: 'Revenue · Sep', source: 'Upwork + invoices', current: 6935, target: 5000, format: { prefix: '$' } }, doneAt: '2026-06-30' },
+  { id: 'f10k', title: '10K followers', icon: 'users', col: 4, row: 2, requires: ['content'], metric: { label: 'Followers', source: 'X / Twitter', current: 12480, target: 10000, format: { compact: true } } },
+  { id: 'diversify', title: 'Two income streams', icon: 'layers', col: 5, row: 2, requires: ['k5'], steps: S(['Client work', 'Second stream earns $500'], 1) },
+  { id: 'invest', title: 'Invest every month', icon: 'trend', col: 6, row: 2, requires: ['bank'], maxLevel: 6, level: 4, description: 'Months in a row with a deposit to IBKR.' },
+  /* row 3 */
+  { id: 'outreach', title: 'Cold outreach', icon: 'megaphone', col: 0, row: 3, steps: S(['Build a list of 100', 'Write 3 templates', 'Send 100', 'Book 5 calls'], 4), doneAt: '2026-05-12' },
+  { id: 'discovery', title: 'Discovery calls', icon: 'chat', col: 1, row: 3, requires: ['outreach'], maxLevel: 3, level: 1, startedAt: '2026-06-02', description: 'Run calls that end with a clear next step.' },
+  { id: 'views', title: '20% proposal views', icon: 'trend', col: 2, row: 3, requires: ['proposals'], metric: { label: 'Viewed ÷ sent · 30d', source: 'Upwork', current: 64, target: 20, format: { suffix: '%' } } },
+  { id: 'casestudy', title: 'Write a case study', icon: 'doc', col: 3, row: 3, requires: ['firstclient'], steps: S(['Pick the project', 'Get client quote', 'Publish'], 0) },
+  { id: 'content', title: 'Post every week', icon: 'video', col: 4, row: 3, maxLevel: 4, level: 3, startedAt: '2026-07-01' },
+  { id: 'budget', title: 'Budget projection', icon: 'calendar', col: 5, row: 3, steps: S(['Fixed costs', '12-month runway'], 2), doneAt: '2026-04-20' },
+  { id: 'taxes', title: 'Taxes handled', icon: 'shield', col: 6, row: 3, steps: S(['Register FOP', 'Quarterly filing', 'Annual return'], 2) },
+  /* row 4 */
+  { id: 'competitors', title: 'Research competitors', icon: 'search', col: 0, row: 4, progress: 1, doneAt: '2026-03-02' },
+  { id: 'pains', title: 'Customer pain points', icon: 'users', col: 1, row: 4, progress: 1, doneAt: '2026-03-10' },
+  { id: 'proposals', title: 'Send 50 proposals', icon: 'mail', col: 2, row: 4, metric: { label: 'Proposals sent', source: 'Upwork', current: 64, target: 50 } },
+  { id: 'firstclient', title: 'First paid client', icon: 'money', col: 3, row: 4, progress: 1, doneAt: '2026-02-18' },
+  { id: 'invoice', title: 'Send an invoice', icon: 'invoice', col: 4, row: 4, progress: 1, doneAt: '2026-02-20' },
+  { id: 'reviews', title: 'Get 5 reviews', icon: 'star', col: 5, row: 4, steps: S(['1', '2', '3', '4', '5'].map(function (x) { return 'Review ' + x; }), 3) },
+  { id: 'bank', title: 'Business account', icon: 'bank', col: 6, row: 4, progress: 1, doneAt: '2026-01-15' },
+  /* row 5 — basics */
+  { id: 'why', title: 'Write your why', icon: 'flag', col: 0, row: 5, progress: 1 },
+  { id: 'niche', title: 'Pick a niche', icon: 'target', col: 1, row: 5, progress: 1 },
+  { id: 'offer', title: 'Write your offer', icon: 'doc', col: 2, row: 5, progress: 1 },
+  { id: 'portfolio', title: 'Build a portfolio', icon: 'briefcase', col: 3, row: 5, steps: S(['3 projects', 'Live demos', 'One-page site'], 3) },
+  { id: 'profile', title: 'Upwork profile', icon: 'user', col: 4, row: 5, progress: 1 },
+  { id: 'lean', title: 'Fill a lean canvas', icon: 'bulb', col: 5, row: 5, progress: 1 },
+  { id: 'track', title: 'Track your numbers', icon: 'chart', col: 6, row: 5, progress: 1, description: 'This dashboard.' }
+];
+
+function Demo() {
+  var s = React.useState(TREE);
+  return h(V.SkillTree, { nodes: s[0], onChange: s[1], height: 720, defaultSelected: 'discovery', label: 'Client acquisition skill tree' });
+}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>

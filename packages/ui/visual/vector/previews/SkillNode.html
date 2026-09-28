@@ -1,0 +1,20 @@
+<!-- @dsCard group="Skill tree" height=150 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>SkillNode — preview</title>
+<style>body{margin:0;background:var(--bg-000);} #root{padding:16px;}</style></head>
+<body>
+<div id="root"></div>
+<script>
+var V = window.Vector, h = React.createElement;
+var P = function (x, y) { return { position: 'absolute', left: x, top: y }; };
+ReactDOM.createRoot(document.getElementById('root')).render(h('div', { style: { position: 'relative', height: 118, minWidth: 820 } },
+  h(V.SkillNode, { node: { title: 'Retainer clients', icon: 'repeat' }, state: 'locked', style: P(0, 0) }),
+  h(V.SkillNode, { node: { title: 'Write a case study', icon: 'doc', steps: [{ label: 'a' }, { label: 'b' }, { label: 'c' }] }, state: 'available', style: P(164, 0) }),
+  h(V.SkillNode, { node: { title: 'Discovery calls', icon: 'chat', maxLevel: 3, level: 1 }, state: 'active', style: P(328, 0) }),
+  h(V.SkillNode, { node: { title: 'Post every week', icon: 'video', maxLevel: 4, level: 3 }, state: 'active', style: P(492, 0) }),
+  h(V.SkillNode, { node: { title: '$5K month', icon: 'money', progress: 1 }, state: 'mastered', style: P(656, 0) }),
+  h(V.SkillNode, { node: { goal: true }, state: 'goal', style: P(820, 0) })));
+</script>
+</body>
+</html>

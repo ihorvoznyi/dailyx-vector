@@ -1,0 +1,17 @@
+<!-- @dsCard group="Controls" height=72 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Button — preview</title>
+<style>body{margin:0;background:var(--bg-000);} #root{padding:16px;}</style></head>
+<body>
+<div id="root"></div>
+<script>
+var V = window.Vector, h = React.createElement;
+ReactDOM.createRoot(document.getElementById('root')).render(h('div',{className:'vx-row'},
+  h(V.Button,{variant:'primary',icon:'+'},'Connect source'),
+  h(V.Button,{variant:'ghost',icon:'↻'},'Sync now'),
+  h(V.Button,{variant:'ghost',loading:true},'Syncing'),
+  h(V.Button,{variant:'quiet',size:'sm'},'View all')));
+</script>
+</body>
+</html>

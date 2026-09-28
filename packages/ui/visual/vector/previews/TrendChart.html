@@ -1,0 +1,20 @@
+<!-- @dsCard group="Charts" height=330 -->
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>TrendChart — preview</title>
+<style>body{margin:0;background:var(--bg-000);} #root{padding:16px;}</style></head>
+<body>
+<div id="root"></div>
+<script>
+var V = window.Vector, h = React.createElement;
+function gen(n,start,drift,vol,seed){var out=[],v=start,s=seed;for(var i=0;i<n;i++){s=(s*9301+49297)%233280;v+=drift+(s/233280-0.5)*vol;out.push(Math.round(v));}return out;}
+var months=['Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep'];
+var R={'3M':3,'6M':6,'1Y':12};
+function Demo(){var s=React.useState('1Y'),n=R[s[0]],a=gen(12,31000,1500,2600,7),b=gen(12,28000,1100,1800,3);
+ var sl=function(arr){return arr.slice(12-n).map(function(y,i){return {x:months[12-n+i],y:y,label:months[12-n+i]+(12-n+i<3?' 2025':' 2026')};});};
+ return h(V.Card,{eyebrow:'Distributed net worth',title:'$48,210',meta:'Monobank + IBKR + PayPal, in USD',action:h(V.SegmentedControl,{options:['3M','6M','1Y'],value:s[0],onChange:s[1]})},
+  h(V.TrendChart,{format:{prefix:'$'},series:[{name:'Net worth',data:sl(a)},{name:'Last year',data:sl(b),dashed:true,area:false}]}));}
+ReactDOM.createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>
