@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unused-vars -- stub until stage 10 (T08) */
 import type { IsoDate } from '../dates';
 import type { Metric, Result } from '../result';
 import type { FxRate, MissingFxRate } from './fx';
-import type { CurrencyCode, Money } from './money';
+import { money, type CurrencyCode, type Money } from './money';
+import { createTrail } from './trail';
 
 /** The latest BalanceSnapshot of one account. The caller picks the latest; core does not. */
 export interface AccountBalance {
@@ -33,5 +33,22 @@ export type NetWorth = Metric<Money, Money, null>;
 
 /** Liquid balances + position market values, in `base`. */
 export function netWorth(input: NetWorthInput): Result<NetWorth, MissingFxRate> {
-  throw new Error('not implemented: netWorth');
+  const trail = createTrail(input.base, input.rates);
+  let total = 0;
+  for (const b of input.balances) {
+    if (!b.isLiquid) continue;
+    const converted = trail.add(b.id, b.balance, input.on);
+    if (!converted.ok) return converted;
+    total += converted.data;
+  }
+  for (const p of input.positions) {
+    const converted = trail.add(p.id, p.marketValue, input.on);
+    if (!converted.ok) return converted;
+    total += converted.data;
+  }
+  const value = money(total, input.base);
+  return {
+    ok: true,
+    data: { value, numerator: value, denominator: null, recordIds: trail.recordIds() },
+  };
 }

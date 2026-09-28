@@ -19,7 +19,7 @@ const pay = (over: Partial<Payment>): Payment => ({
 });
 
 // Unskipped by stage 10 (T08).
-describe.skip('netIncome', () => {
+describe('netIncome', () => {
   it('derives the tax reserve from the tax rate when none is recorded', () => {
     expect(netIncome(pay({ amount: usd(240_000) }), 500)).toEqual(usd(228_000));
   });

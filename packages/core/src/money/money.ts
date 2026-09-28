@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars -- stub until stage 10 (T08) */
-
 /** ISO 4217 codes Vector handles. All three have two minor-unit digits. */
 export type CurrencyCode = 'USD' | 'UAH' | 'EUR';
 
@@ -11,5 +9,8 @@ export interface Money {
 
 /** Builds a Money. Throws RangeError unless `amount` is a safe integer. */
 export function money(amount: number, currency: CurrencyCode): Money {
-  throw new Error('not implemented: money');
+  if (!Number.isSafeInteger(amount)) {
+    throw new RangeError(`Money amount must be a safe integer, got ${amount} ${currency}`);
+  }
+  return { amount, currency };
 }

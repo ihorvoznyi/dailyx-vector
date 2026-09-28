@@ -1,9 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unused-vars -- stub until stage 10 (T08) */
-import type { IsoDate } from '../dates';
+import { addDays, type IsoDate } from '../dates';
 import type { Metric, Result } from '../result';
 import type { FxRate, MissingFxRate } from './fx';
-import type { CurrencyCode, Money } from './money';
-import type { Payment } from './net-income';
+import { money, type CurrencyCode, type Money } from './money';
+import { netIncome, type Payment } from './net-income';
+import { roundHalfAway } from './round';
+import { createTrail } from './trail';
 
 export interface TimeEntry {
   readonly id: string;
@@ -34,5 +35,32 @@ export type EffectiveRate = Metric<Money | null, Money, number>;
 
 /** Net income of received payments over 90 days ÷ client hours over 90 days. */
 export function effectiveRate(input: EffectiveRateInput): Result<EffectiveRate, MissingFxRate> {
-  throw new Error('not implemented: effectiveRate');
+  const { on, base, taxRateBps } = input;
+  const start = addDays(on, -89);
+  const inWindow = (date: IsoDate) => start <= date && date <= on;
+  const trail = createTrail(base, input.rates);
+
+  let income = 0;
+  for (const p of input.payments) {
+    if (p.certainty !== 'received' || !inWindow(p.date)) continue;
+    const converted = trail.add(p.id, netIncome(p, taxRateBps), p.date);
+    if (!converted.ok) return converted;
+    income += converted.data;
+  }
+  let hours = 0;
+  for (const t of input.timeEntries) {
+    if (t.incomeSourceId === null || !inWindow(t.date)) continue;
+    trail.note(t.id);
+    hours += t.hours;
+  }
+
+  return {
+    ok: true,
+    data: {
+      value: hours === 0 ? null : money(roundHalfAway(income / hours), base),
+      numerator: money(income, base),
+      denominator: hours,
+      recordIds: trail.recordIds(),
+    },
+  };
 }

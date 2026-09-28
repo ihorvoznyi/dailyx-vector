@@ -60,7 +60,7 @@ const FX_D: FxRate = {
 const FX_E: FxRate = { ...FX_D, id: 'fx-e', rateE6: 50_000_000 };
 
 // Unskipped by stage 10 (T08).
-describe.skip('convert', () => {
+describe('convert', () => {
   it('needs no rate when converting to the same currency', () => {
     expect(convert(usd(12_345), 'USD', '2026-09-28', [])).toEqual({
       ok: true,

@@ -91,7 +91,7 @@ const input: EffectiveRateInput = {
 };
 
 // Unskipped by stage 10 (T08).
-describe.skip('effectiveRate', () => {
+describe('effectiveRate', () => {
   it('is net income of received payments over client hours, in the 90-day window', () => {
     expect(effectiveRate(input)).toEqual({
       ok: true,

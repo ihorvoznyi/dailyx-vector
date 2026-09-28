@@ -59,7 +59,7 @@ const DEPOSIT: AccountBalance = {
 const BALANCES = [MONO, PAYPAL, CASH, DEPOSIT];
 
 // Unskipped by stage 10 (T08).
-describe.skip('runway', () => {
+describe('runway', () => {
   it('is liquid balances divided by the monthly cost', () => {
     expect(
       runway({

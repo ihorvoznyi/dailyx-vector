@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { money } from './money';
 
 // Unskipped by stage 10 (T08).
-describe.skip('money', () => {
+describe('money', () => {
   it('builds a Money from a safe integer amount and a currency', () => {
     expect(money(12_345, 'USD')).toEqual({ amount: 12_345, currency: 'USD' });
     expect(money(-250, 'UAH')).toEqual({ amount: -250, currency: 'UAH' });

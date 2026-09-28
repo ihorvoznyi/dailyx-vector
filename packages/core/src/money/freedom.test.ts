@@ -112,7 +112,7 @@ const FLAT_RATIO_RECORD_IDS = ['r-jun-lumen', 'r-jul-lumen', 'r-aug-lumen'];
 const FLAT_MONTHS_RECORD_IDS = ['r-may-lumen', 'r-jun-lumen', 'r-jul-lumen', 'r-aug-lumen'];
 
 // Unskipped by stage 10 (T08).
-describe.skip('freedomRatio', () => {
+describe('freedomRatio', () => {
   it('is average recurring net income over the last 3 complete months, over the monthly cost', () => {
     expect(freedomRatio(baseInput)).toEqual({
       ok: true,
@@ -203,7 +203,7 @@ describe.skip('freedomRatio', () => {
 });
 
 // Unskipped by stage 10 (T08).
-describe.skip('monthsToFreedom', () => {
+describe('monthsToFreedom', () => {
   it('is the gap over the average monthly growth in recurring income', () => {
     expect(monthsToFreedom(baseInput)).toEqual({
       ok: true,

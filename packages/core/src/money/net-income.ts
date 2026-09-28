@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars -- stub until stage 10 (T08) */
 import type { IsoDate } from '../dates';
-import type { Money } from './money';
+import { money, type Money } from './money';
+import { divRound } from './round';
 
 /** Received → Secured → Committed → Pipeline. Only `received` is ever summed into income. */
 export type Certainty = 'received' | 'secured' | 'committed' | 'pipeline';
@@ -22,8 +22,22 @@ export interface Payment {
 
 /**
  * amount − platformFee − taxReserved, in the payment's own currency.
- * Throws RangeError when the fee or the recorded tax is in another currency.
+ * A zero fee or recorded tax matches any currency. Throws RangeError when a non-zero fee or
+ * recorded tax is in another currency.
  */
 export function netIncome(payment: Payment, taxRateBps: number): Money {
-  throw new Error('not implemented: netIncome');
+  const { amount, platformFee, taxReserved } = payment;
+  for (const [label, part] of [
+    ['platform fee', platformFee],
+    ['tax reserve', taxReserved],
+  ] as const) {
+    if (part !== null && part.amount !== 0 && part.currency !== amount.currency) {
+      throw new RangeError(
+        `Payment ${payment.id}: ${label} is in ${part.currency}, amount is in ${amount.currency}`,
+      );
+    }
+  }
+  const tax =
+    taxReserved?.amount ?? Number(divRound(BigInt(amount.amount) * BigInt(taxRateBps), 10_000n));
+  return money(amount.amount - platformFee.amount - tax, amount.currency);
 }

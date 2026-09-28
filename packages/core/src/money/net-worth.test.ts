@@ -63,7 +63,7 @@ const POSITIONS: PositionValue[] = [
 ];
 
 // Unskipped by stage 10 (T08).
-describe.skip('netWorth', () => {
+describe('netWorth', () => {
   it('sums liquid balances and position market values, excluding illiquid accounts', () => {
     expect(
       netWorth({
