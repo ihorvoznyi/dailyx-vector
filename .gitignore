@@ -1,0 +1,25 @@
+# Harness working files (harness-kit convention)
+PLAN.md
+HANDOFF.md
+CLAUDE.local.md
+.omc/
+
+# Dependencies and build output
+node_modules/
+.next/
+dist/
+coverage/
+*.tsbuildinfo
+.wrangler/
+.vercel/
+
+# Test output
+playwright-report/
+test-results/
+
+# Env and secrets
+.env
+.env.*
+!.env.example
+
+.DS_Store

@@ -1,0 +1,28 @@
+#!/usr/bin/env sh
+# Tracked in the repo, so it survives a fresh clone — but git does NOT carry the config.
+# Re-run this once per clone:   git config core.hooksPath .githooks
+#
+# Hard block. Prints only the failing check's output. Bypass is `git commit --no-verify`;
+# reaching for it routinely means fixing the check instead.
+#
+# Deliberately no test run on PostToolUse (see .claude/settings.local.json) — the implementer runs
+# tests itself once per step. Running them on every file write triples the cost and catches
+# nothing earlier. This hook is where they run.
+
+set -e
+PM="<runner>"
+
+run() {
+  printf '  %s %s ... ' "$PM" "$1"
+  if out=$($PM $1 2>&1); then
+    printf 'ok\n'
+  else
+    printf 'FAIL\n\n'
+    printf '%s\n' "$out"
+    exit 1
+  fi
+}
+
+run typecheck
+run lint
+run test
