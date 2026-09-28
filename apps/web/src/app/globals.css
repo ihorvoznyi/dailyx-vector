@@ -1,2 +1,3 @@
 @import 'tailwindcss';
+@import '@dailyx/ui/styles.css';
 @source '../../../../packages/ui/src';

@@ -40,6 +40,8 @@ These are the latest stable versions on npm as of Sep 28, 2026.
 | class-variance-authority | 0.7.1 |
 | clsx | 2.1.1 |
 | tailwind-merge | 3.7.0 |
+| @fontsource/geist | 5.3.0 |
+| @fontsource/geist-mono | 5.3.0 |
 
 ## Consequences
 
@@ -50,6 +52,16 @@ These are the latest stable versions on npm as of Sep 28, 2026.
   `prefers-reduced-motion`.
 - `tailwind-merge` must know the custom theme names, or it may drop classes it doesn't recognise
   when merging. Configure it once, in `cn`.
+- The theme has one key that isn't a token, spacing 0 (--spacing-0: 0px). With the scale reset and
+  no --spacing base, p-0, inset-0 and min-w-0 would otherwise compile to nothing. The reset also
+  covers the inset-, drop- and text-shadow scales.
+- Some utilities can't be reset and still compile: statics such as p-px, rounded-full,
+  rounded-none, leading-none and ease-linear; bare durations such as duration-150; and Tailwind's
+  leading-* and tracking-* scales. Review catches them.
+- Geist and Geist Mono are self-hosted through Fontsource (the weights the Vector bundle loads),
+  so the tokens.json stacks resolve by name with no third-party request. Durations are
+  --transition-duration-* theme variables, which is the namespace Tailwind's duration-* utility
+  reads.
 
 ## Rejected
 

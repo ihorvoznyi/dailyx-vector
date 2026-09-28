@@ -357,7 +357,7 @@ apps/worker/              queue jobs: sync, normalize, match, snapshot, stats (M
 packages/core/            pure domain logic: money, metrics, stats, roi, rebalance
 packages/db/              Drizzle schema, migrations, seed (sample data from the Vector previews)
 packages/connectors/      one folder per provider implementing Connector (M2)
-packages/ui/              Vector tokens.css + components as TSX
+packages/ui/              Vector theme (generated from tokens.json) + components as TSX
 packages/config/          tsconfig, eslint, prettier presets
 docs/                     this spec, ADRs, runbooks
 ```

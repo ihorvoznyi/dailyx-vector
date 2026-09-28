@@ -3,12 +3,19 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./styles.css": "./src/styles/index.css"
   },
   "scripts": {
+    "tokens": "node scripts/build-tokens.ts",
     "typecheck": "tsc --noEmit"
   },
+  "dependencies": {
+    "@fontsource/geist": "5.3.0",
+    "@fontsource/geist-mono": "5.3.0"
+  },
   "devDependencies": {
-    "@dailyx/config": "workspace:*"
+    "@dailyx/config": "workspace:*",
+    "@types/node": "24.19.0"
   }
 }
