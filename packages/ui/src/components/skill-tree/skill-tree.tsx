@@ -106,6 +106,16 @@ export function SkillTree({
   const worldRef = useRef<HTMLDivElement>(null);
   const g = useRef<Gesture>({ pointers: {}, mode: null });
 
+  // `onMove`/`onUp` are registered once per gesture via `window.addEventListener` inside `onDown`
+  // and keep running against that render's closure for every subsequent pointer event, so they
+  // (and `zoomAt`, which they call) read `view` from this live ref rather than the `view` state
+  // variable — otherwise a multi-step pinch would recompute its pan/anchor from the gesture's
+  // stale starting view instead of the view as of the previous pointermove.
+  const viewRef = useRef(view);
+  useEffect(() => {
+    viewRef.current = view;
+  });
+
   let rows = 0;
   let minC = Infinity;
   let maxC = -Infinity;
@@ -152,9 +162,10 @@ export function SkillTree({
 
   function zoomAt(f: number, cx0: number, cy0: number, smooth?: boolean) {
     if (smooth) glide();
-    const k = Math.max(0.35, Math.min(2.2, view.k * f));
-    const r = k / view.k;
-    setView({ k, x: cx0 - (cx0 - view.x) * r, y: cy0 - (cy0 - view.y) * r });
+    const v = viewRef.current;
+    const k = Math.max(0.35, Math.min(2.2, v.k * f));
+    const r = k / v.k;
+    setView({ k, x: cx0 - (cx0 - v.x) * r, y: cy0 - (cy0 - v.y) * r });
   }
 
   function select(id: string | null) {
@@ -219,7 +230,11 @@ export function SkillTree({
       const a = st.pointers[Number(ids[0])]!;
       const b = st.pointers[Number(ids[1])]!;
       const d = Math.hypot(a[0] - b[0], a[1] - b[1]);
-      zoomAt((st.pinch!.k * d) / st.pinch!.d / view.k, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2);
+      zoomAt(
+        (st.pinch!.k * d) / st.pinch!.d / viewRef.current.k,
+        (a[0] + b[0]) / 2,
+        (a[1] + b[1]) / 2,
+      );
       return;
     }
     const dx = pt[0] - st.start![0];
@@ -234,7 +249,7 @@ export function SkillTree({
       const n = byId[st.node!];
       if (!n) return;
       const c = cellXY(n.col, n.row);
-      const k = view.k;
+      const k = viewRef.current.k;
       const wx = c[0] + dx / k;
       const wy = c[1] + dy / k;
       const cell = nearestCell(wx, wy);
@@ -257,7 +272,7 @@ export function SkillTree({
       const n = byId[st.node!];
       if (n) {
         const c = cellXY(n.col, n.row);
-        const k = view.k;
+        const k = viewRef.current.k;
         const pt = local(e);
         const cell = nearestCell(
           c[0] + (pt[0] - st.start![0]) / k,
