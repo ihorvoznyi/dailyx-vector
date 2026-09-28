@@ -1,4 +1,273 @@
-/** Stub until stage 3-6 task W3-hypothesis adds the Vector sample props. */
+import type { Hypothesis, LeverDef, MetricDef } from '../../lib/hypothesis';
+import { HypothesisCanvas } from './hypothesis-canvas';
+
+function weeks(start: string, n: number): string[] {
+  const out: string[] = [];
+  const t = Date.parse(`${start}T00:00:00Z`);
+  for (let i = 0; i < n; i++) out.push(new Date(t + i * 7 * 864e5).toISOString().slice(0, 10));
+  return out;
+}
+const WK = weeks('2026-05-04', 22);
+function ser(vals: number[]): { x: string; y: number; date: string }[] {
+  return vals.map((y, i) => {
+    const d = WK[i]!;
+    const dt = new Date(`${d}T00:00:00Z`);
+    return {
+      x: dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }),
+      y,
+      date: d,
+    };
+  });
+}
+
+const METRICS: MetricDef[] = [
+  {
+    id: 'proposals',
+    label: 'Proposals sent',
+    source: 'Upwork',
+    value: 64,
+    note: 'Last 30 days · Upwork',
+    spark: [12, 14, 13, 15, 16, 15, 17, 16],
+    series: ser([
+      10, 11, 12, 11, 13, 12, 14, 13, 12, 14, 15, 14, 13, 15, 16, 15, 14, 16, 17, 16, 15, 16,
+    ]),
+  },
+  {
+    id: 'views',
+    label: 'View rate',
+    source: 'Upwork',
+    value: 64,
+    format: { suffix: '%' },
+    conversion: 0.64,
+    note: '41 of 64 proposals viewed',
+    spark: [44, 47, 52, 55, 58, 57, 61, 64],
+    series: ser([
+      42, 44, 43, 47, 50, 52, 54, 55, 56, 55, 57, 56, 57, 56, 58, 57, 60, 62, 61, 63, 64, 64,
+    ]),
+  },
+  {
+    id: 'replies',
+    label: 'Reply rate',
+    source: 'Upwork',
+    value: 41,
+    format: { suffix: '%' },
+    conversion: 0.41,
+    note: '17 of 41 viewed replied',
+    spark: [36, 38, 37, 39, 38, 40, 42, 41],
+    series: ser([
+      35, 36, 37, 36, 38, 37, 36, 38, 39, 38, 37, 39, 38, 40, 39, 38, 39, 40, 42, 41, 42, 41,
+    ]),
+  },
+  {
+    id: 'contracts',
+    label: 'Contract rate',
+    source: 'Upwork',
+    value: 29,
+    format: { suffix: '%' },
+    conversion: 0.29,
+    note: '5 of 17 conversations signed',
+    spark: [38, 36, 30, 24, 22, 26, 28, 29],
+    series: ser([
+      36, 38, 37, 39, 38, 34, 30, 26, 24, 22, 23, 24, 25, 26, 27, 28, 27, 28, 29, 28, 29, 29,
+    ]),
+  },
+  {
+    id: 'revenue',
+    label: 'Revenue · month',
+    source: 'Upwork + invoices',
+    value: 6935,
+    format: { prefix: '$' },
+    note: 'September to date',
+    spark: [3.1, 3.8, 4.4, 4.2, 5.1, 5.6, 6.2, 6.9],
+    series: ser([
+      2900, 3000, 3100, 3300, 3500, 3700, 3800, 3900, 4200, 4300, 4400, 4300, 4500, 4800, 5100,
+      5300, 5600, 5900, 6100, 6400, 6700, 6935,
+    ]),
+  },
+];
+
+const LEVERS: LeverDef[] = [
+  { id: 'niche', label: 'Niche: fintech only', icon: 'target', x: 0, y: 96 },
+  { id: 'template', label: 'Proposal template B', icon: 'doc', x: 0, y: 184 },
+  { id: 'speed', label: 'Reply within 1 hour', icon: 'clock', x: 0, y: 272 },
+  { id: 'loom', label: 'Loom in proposal', icon: 'video', x: 0, y: 360 },
+  { id: 'case', label: 'Case study link', icon: 'link', x: 0, y: 448 },
+  { id: 'script', label: 'Discovery call script', icon: 'chat', x: 0, y: 536 },
+  { id: 'price', label: 'Price +30%', icon: 'money', x: 0, y: 624 },
+];
+
+const HYPS: Hypothesis[] = [
+  {
+    id: 'h3',
+    code: 'H-03',
+    lever: 'niche',
+    metric: 'views',
+    status: 'supported',
+    method: 'before-after',
+    change: 'only bid on fintech jobs',
+    direction: 'up',
+    amount: '8pp',
+    windowDays: 42,
+    because: 'specialists get opened before generalists',
+    stopRule: '60 proposals',
+    n: 60,
+    nTarget: 60,
+    pBetter: 0.97,
+    effect: { est: 12, lo: 4, hi: 20, unit: 'pp' },
+    confidence: 0.6,
+    createdAt: '2026-04-28',
+    startedAt: '2026-05-04',
+    endedAt: '2026-06-15',
+    adoptedTo: 'Positioning',
+    skill: 'Positioning',
+  },
+  {
+    id: 'h4',
+    code: 'H-04',
+    lever: 'price',
+    metric: 'contracts',
+    status: 'refuted',
+    method: 'before-after',
+    change: 'raise my rate by 30%',
+    direction: 'up',
+    amount: 'or hold',
+    windowDays: 40,
+    because: 'a higher price reads as higher quality',
+    stopRule: '20 conversations',
+    n: 20,
+    nTarget: 20,
+    pBetter: 0.04,
+    effect: { est: -14, lo: -27, hi: -1, unit: 'pp' },
+    confidence: 0.65,
+    createdAt: '2026-05-25',
+    startedAt: '2026-06-01',
+    endedAt: '2026-07-10',
+    notes: 'Rolled back to the old rate on Jul 11. Try again with a case study in hand.',
+  },
+  {
+    id: 'h6',
+    code: 'H-06',
+    lever: 'speed',
+    metric: 'replies',
+    status: 'inconclusive',
+    method: 'alternate',
+    change: 'answer every invite within an hour',
+    direction: 'up',
+    amount: '10pp',
+    windowDays: 35,
+    because: 'the first freelancer to respond wins attention',
+    stopRule: '40 proposals',
+    n: 40,
+    nTarget: 40,
+    pBetter: 0.66,
+    effect: { est: 3, lo: -8, hi: 14, unit: 'pp' },
+    confidence: 0.7,
+    createdAt: '2026-06-26',
+    startedAt: '2026-07-01',
+    endedAt: '2026-08-05',
+  },
+  {
+    id: 'h7',
+    code: 'H-07',
+    lever: 'template',
+    metric: 'views',
+    status: 'running',
+    method: 'alternate',
+    change: 'open with the client’s problem, not my bio',
+    direction: 'up',
+    amount: '5pp',
+    windowDays: 28,
+    because: 'the first two lines are all that shows in their inbox',
+    stopRule: '40 proposals or 28 days',
+    killRule: 'view rate < 40% after 15',
+    n: 32,
+    nTarget: 40,
+    pBetter: 0.87,
+    effect: { est: 9, lo: -2, hi: 19, unit: 'pp' },
+    confidence: 0.7,
+    createdAt: '2026-08-20',
+    startedAt: '2026-08-24',
+  },
+  {
+    id: 'h9',
+    code: 'H-09',
+    lever: 'loom',
+    metric: 'replies',
+    status: 'running',
+    method: 'alternate',
+    change: 'add a 60-second Loom to every proposal',
+    direction: 'up',
+    amount: '8pp',
+    windowDays: 21,
+    because: 'a face and a voice beat a template',
+    stopRule: '30 proposals or 21 days',
+    killRule: 'reply rate < 20% after 15',
+    n: 11,
+    nTarget: 30,
+    pBetter: 0.71,
+    effect: { est: 6, lo: -10, hi: 21, unit: 'pp' },
+    confidence: 0.75,
+    createdAt: '2026-09-04',
+    startedAt: '2026-09-07',
+  },
+  {
+    id: 'h10',
+    code: 'H-10',
+    lever: 'case',
+    metric: 'replies',
+    status: 'running',
+    method: 'tagged',
+    change: 'link a matching case study in the first line',
+    direction: 'up',
+    amount: '5pp',
+    windowDays: 21,
+    because: 'proof beats promises',
+    stopRule: '30 proposals',
+    n: 8,
+    nTarget: 30,
+    pBetter: 0.58,
+    effect: { est: 2, lo: -12, hi: 15, unit: 'pp' },
+    confidence: 0.55,
+    createdAt: '2026-09-08',
+    startedAt: '2026-09-10',
+  },
+  {
+    id: 'h11',
+    code: 'H-11',
+    lever: 'script',
+    metric: 'contracts',
+    status: 'draft',
+    method: 'alternate',
+    change: 'run a 5-question discovery script',
+    direction: 'up',
+    amount: '10pp',
+    windowDays: 30,
+    because: 'clients sign when they hear their problem said back to them',
+    stopRule: '20 calls',
+    confidence: 0.6,
+    createdAt: '2026-09-20',
+  },
+  {
+    id: 'h12',
+    code: 'H-12',
+    lever: 'price',
+    metric: 'revenue',
+    status: 'idea',
+    change: 'anchor with a premium tier',
+    createdAt: '2026-09-25',
+  },
+];
+
+/** The Vector `HypothesisCanvas.html` sample: levers, funnel metrics, and H-09 open. */
 export function HypothesisCanvasPreview() {
-  return null;
+  return (
+    <HypothesisCanvas
+      metrics={METRICS}
+      levers={LEVERS}
+      hypotheses={HYPS}
+      today="2026-09-28"
+      height={720}
+      defaultSelected="h9"
+    />
+  );
 }

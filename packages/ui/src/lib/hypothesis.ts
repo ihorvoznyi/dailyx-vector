@@ -57,6 +57,47 @@ export interface MetricDef {
   conversion?: number;
 }
 
+/** One status's label, tone and one-character glyph (Vector `HSTATUS`). */
+export const HSTATUS: Record<HypStatus, { label: string; tone: Tone; glyph: string }> = {
+  idea: { label: 'Idea', tone: 'neutral', glyph: '·' },
+  draft: { label: 'Draft', tone: 'neutral', glyph: '○' },
+  running: { label: 'Running', tone: 'info', glyph: '◐' },
+  supported: { label: 'Supported', tone: 'up', glyph: '✓' },
+  refuted: { label: 'Refuted', tone: 'down', glyph: '✕' },
+  inconclusive: { label: 'Inconclusive', tone: 'neutral', glyph: '≈' },
+};
+
+/** The three ways to test a hypothesis, for the Method segmented control. */
+export const METHODS: { value: NonNullable<Hypothesis['method']>; label: string }[] = [
+  { value: 'alternate', label: 'Alternate A/B' },
+  { value: 'before-after', label: 'Before / after' },
+  { value: 'tagged', label: 'Tagged' },
+];
+
+/** Whole days since the Unix epoch for an ISO date (UTC); `null` for an empty date. */
+export function dayNum(s: string | null | undefined): number | null {
+  return s ? Math.floor(Date.parse(`${s}T00:00:00Z`) / 864e5) : null;
+}
+
+/** The inverse of `dayNum`: an ISO date string. */
+export function dayStr(n: number): string {
+  return new Date(n * 864e5).toISOString().slice(0, 10);
+}
+
+/** An ISO date as `Sep 7`; an empty string when there's no date. */
+export function shortDate(s: string | undefined): string {
+  if (!s) return '';
+  const d = new Date(`${s}T00:00:00Z`);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+}
+
+/**
+ * Today's ISO date, read once at module load so it's never computed during render (the
+ * `react-hooks/purity` rule forbids `new Date()` in a component body). Components default their
+ * `today` prop to `today ?? TODAY`.
+ */
+export const TODAY = new Date().toISOString().slice(0, 10);
+
 /**
  * The one-line verdict for a posterior probability that B beats A, ported from the Vector
  * bundle. `null` means no data yet; otherwise the word pairs with a `Tone` for its colour.

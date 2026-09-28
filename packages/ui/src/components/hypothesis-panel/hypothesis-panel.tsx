@@ -1,4 +1,7 @@
+import { TODAY } from '../../lib/hypothesis';
 import type { Hypothesis, LeverDef, MetricDef } from '../../lib/hypothesis';
+import { HypothesisDraft } from './hypothesis-draft';
+import { HypothesisRecord } from './hypothesis-record';
 
 export interface HypothesisPanelProps {
   hypothesis: Hypothesis;
@@ -12,8 +15,45 @@ export interface HypothesisPanelProps {
   className?: string;
 }
 
-/** Stub until stage 3-6 task W3-hypothesis builds it. The props above are the contract. */
-export function HypothesisPanel(props: HypothesisPanelProps) {
-  void props;
-  return null;
+/**
+ * HypothesisPanel is one experiment's record: a pre-registration form while it's a draft, then
+ * locked evidence while it runs and after it ends. Never let a running experiment's statement be
+ * edited — changes are amendments, recorded in `notes`.
+ */
+export function HypothesisPanel({
+  hypothesis,
+  lever,
+  metrics,
+  today,
+  conflict,
+  onChange,
+  onClose,
+  className,
+}: HypothesisPanelProps) {
+  const asOf = today ?? TODAY;
+  if (hypothesis.status === 'draft' || hypothesis.status === 'idea') {
+    return (
+      <HypothesisDraft
+        key={hypothesis.id}
+        hypothesis={hypothesis}
+        metrics={metrics}
+        today={asOf}
+        onChange={onChange}
+        onClose={onClose}
+        className={className}
+      />
+    );
+  }
+  return (
+    <HypothesisRecord
+      hypothesis={hypothesis}
+      lever={lever}
+      metrics={metrics}
+      today={asOf}
+      conflict={conflict}
+      onChange={onChange}
+      onClose={onClose}
+      className={className}
+    />
+  );
 }

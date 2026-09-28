@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { evidenceWord, signed } from './hypothesis';
+import { dayNum, dayStr, evidenceWord, shortDate, signed } from './hypothesis';
 
 describe('evidenceWord', () => {
   it('has no data yet when value is null', () => {
@@ -45,5 +45,33 @@ describe('signed', () => {
 
   it('rounds to the given decimals', () => {
     expect(signed(2.345, '', 1)).toBe('+2.3');
+  });
+});
+
+describe('dayNum', () => {
+  it('counts whole days since the epoch', () => {
+    expect(dayNum('1970-01-02')).toBe(1);
+    expect(dayNum('2026-09-28')).toBe(20724);
+  });
+
+  it('is null for an empty date', () => {
+    expect(dayNum(null)).toBeNull();
+    expect(dayNum(undefined)).toBeNull();
+  });
+});
+
+describe('dayStr', () => {
+  it('round-trips with dayNum', () => {
+    expect(dayStr(dayNum('2026-09-07')!)).toBe('2026-09-07');
+  });
+});
+
+describe('shortDate', () => {
+  it('formats an ISO date as month and day', () => {
+    expect(shortDate('2026-09-07')).toBe('Sep 7');
+  });
+
+  it('is empty for a missing date', () => {
+    expect(shortDate(undefined)).toBe('');
   });
 });
