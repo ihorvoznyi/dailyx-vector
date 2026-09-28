@@ -118,7 +118,7 @@ const plan = await agent([
   'Also append a short "#### Stage ' + S + ' orchestration" note to PLAN.md under the stage: the waves, the task ids, and the decisions you made.',
   'Set `blocked` only if the stage needs an owner-only input such as credentials or accounts.',
   args.notes ? 'Notes from the parent: ' + args.notes : '',
-].filter(Boolean).join('\n'), { agentType: 'orchestrator', model: 'opus', effort: 'high', schema: PLAN_SCHEMA, label: 'orchestrator: plan ' + S, phase: 'Plan' })
+].filter(Boolean).join('\n'), { agentType: 'orchestrator', model: 'opus', effort: args.planEffort || 'high', schema: PLAN_SCHEMA, label: 'orchestrator: plan ' + S, phase: 'Plan' })
 
 if (!plan) return { stage: S, error: 'orchestrator plan failed' }
 if (plan.blocked) return { stage: S, blocked: plan.blocked, specPath: plan.specPath }
