@@ -37,11 +37,17 @@ If a set fails to resolve together, T01 changes it here and says why.
 | zod | 4.6.5 | Every boundary |
 | vitest | 5.0.2 | Unit and fixture tests |
 | @playwright/test | 1.63.0 | e2e and visual tests |
-| eslint | 10.11.0 | Flat config in `packages/config` |
+| eslint | 10.11.0 | Flat config in packages/config. eslint-config-next 16.3.6 bundles eslint-plugin-react 7.37.5, -import 2.32.0 and -jsx-a11y 6.10.2, which declare eslint ≤9. Allowed through peerDependencyRules in pnpm-workspace.yaml, with settings.react.version set explicitly because 'detect' crashes on ESLint 10. Fallback: 9.39.5 (EOL). |
+| eslint-config-next | 16.3.6 | Matches next |
 | typescript-eslint | 8.70.1 | |
 | prettier | 3.9.9 | |
+| @types/node | 24.19.0 | Latest 24.x; npm latest is 26.x |
+| @types/react / @types/react-dom | 19.3.0 | |
 | knip | 6.38.0 | Dead-code gate |
 | wrangler | 4.142.0 | Not installed until M3 |
+
+pnpm 12 fails an install on unapproved dependency build scripts; each decision is listed under
+allowBuilds in pnpm-workspace.yaml.
 
 ### Environments
 

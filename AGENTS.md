@@ -170,4 +170,6 @@ pnpm lint
 pnpm test
 pnpm test:e2e
 pnpm knip
+pnpm format
+pnpm build
 ```

@@ -1,0 +1,4 @@
+{
+  "extends": "@dailyx/config/tsconfig.base.json",
+  "include": ["src"]
+}

@@ -10,7 +10,7 @@
 # nothing earlier. This hook is where they run.
 
 set -e
-PM="<runner>"
+PM="pnpm"
 
 run() {
   printf '  %s %s ... ' "$PM" "$1"

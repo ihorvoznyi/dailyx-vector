@@ -12,6 +12,7 @@ coverage/
 *.tsbuildinfo
 .wrangler/
 .vercel/
+next-env.d.ts
 
 # Test output
 playwright-report/

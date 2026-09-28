@@ -1,0 +1,14 @@
+{
+  "name": "@dailyx/db",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@dailyx/config": "workspace:*"
+  }
+}
