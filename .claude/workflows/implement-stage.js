@@ -117,7 +117,8 @@ const plan = await agent([
   'Return waves of file-disjoint tasks. Use at most 6 tasks per wave, and give each task one clear owner of its files.',
   'Also append a short "#### Stage ' + S + ' orchestration" note to PLAN.md under the stage: the waves, the task ids, and the decisions you made.',
   'Set `blocked` only if the stage needs an owner-only input such as credentials or accounts.',
-].join('\n'), { agentType: 'general-purpose', model: 'opus', effort: 'high', schema: PLAN_SCHEMA, label: 'orchestrator: plan ' + S, phase: 'Plan' })
+  args.notes ? 'Notes from the parent: ' + args.notes : '',
+].filter(Boolean).join('\n'), { agentType: 'orchestrator', model: 'opus', effort: 'high', schema: PLAN_SCHEMA, label: 'orchestrator: plan ' + S, phase: 'Plan' })
 
 if (!plan) return { stage: S, error: 'orchestrator plan failed' }
 if (plan.blocked) return { stage: S, blocked: plan.blocked, specPath: plan.specPath }
@@ -151,7 +152,7 @@ for (let w = 0; w < plan.waves.length; w++) {
     'After the wave, run each AGENTS.md ## Gates command separately. Run `pnpm test:e2e` only if the wave touched packages/ui or apps/web. Run `pnpm install --frozen-lockfile` first if a lockfile changed.',
     'Then remove the merged worktrees (`git worktree remove --force <path>`) and delete their branches (`git branch -D <branch>`).',
     'Return status, the merged task ids, the head sha, and short notes.',
-  ].join('\n'), { agentType: 'general-purpose', model: 'opus', effort: 'high', schema: INTEG_SCHEMA, label: 'orchestrator: integrate wave ' + (w + 1), phase: 'Integrate' })
+  ].join('\n'), { agentType: 'orchestrator', model: 'opus', effort: 'high', schema: INTEG_SCHEMA, label: 'orchestrator: integrate wave ' + (w + 1), phase: 'Integrate' })
   if (!integ || integ.status !== 'ok') return { stage: S, failedAt: 'integrate wave ' + (w + 1), integ: integ, results: results }
   shipped.push.apply(shipped, integ.merged || [])
 }
@@ -196,6 +197,6 @@ const del = await agent([
   'In PLAN.md, set the line starting "**Current stage:" to "**Current stage: ' + NEXT + '** (stage ' + S + ' done: <short sha>)". PLAN.md is gitignored; do not commit it.',
   'Push with `git push origin master`.',
   'Return status, the head sha, and one short line each for shipped, stubbed and deferred.',
-].join('\n'), { agentType: 'general-purpose', model: 'opus', effort: 'medium', schema: DELIVER_SCHEMA, label: 'orchestrator: deliver', phase: 'Deliver' })
+].join('\n'), { agentType: 'orchestrator', model: 'opus', effort: 'medium', schema: DELIVER_SCHEMA, label: 'orchestrator: deliver', phase: 'Deliver' })
 
 return { stage: S, plan: plan.summary, specPath: plan.specPath, shipped: shipped, reviews: reviews.map(function (r) { return r && { verdict: r.verdict, reportPath: r.reportPath } }), deliver: del }
