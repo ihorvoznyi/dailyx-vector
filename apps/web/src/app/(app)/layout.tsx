@@ -21,11 +21,11 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
           <Link href="/" className="order-1 font-semibold text-ink">
             Vector
           </Link>
-          <div className="order-2 ml-auto sm:order-3">
-            <QuickLog channels={shell.quickLogChannels} />
-          </div>
           <div className="order-3 w-full min-w-0 sm:order-2 sm:w-auto sm:flex-1">
             <NavLinks />
+          </div>
+          <div className="order-2 ml-auto sm:order-3">
+            <QuickLog channels={shell.quickLogChannels} />
           </div>
         </div>
       </header>

@@ -7,10 +7,9 @@
   `type` imports from `@dailyx/db` (e.g. `server/channels.ts`'s `import { type channelBets, type
   ChannelPresetId } from '@dailyx/db'`) — don't import that module from a client component; inline
   the lookup against `@dailyx/ui`'s `channels` instead.
-- `e2e/app/shell.spec.ts`'s "the nav is keyboard-reachable from the top of the page" test fails in
-  isolation (`git stash` everything else, run just that spec) on this checkout: after Tab from the
-  "Vector" link, the "Overview" link isn't focused. Pre-existing, not caused by quick-log/outreach
-  work — flagged for whoever owns `nav-links.tsx`/`layout.tsx` (T3).
+- Header tab order follows DOM order, not the CSS `order-*` classes. `(app)/layout.tsx` keeps
+  `NavLinks` before `QuickLog` in the DOM so Tab goes Vector → Overview (`shell.spec.ts` asserts
+  it); the stub QuickLog was `disabled`, which hid the wrong DOM order until the real button landed.
 - `outreachItems.list()` has no `ORDER BY`; sort ties (e.g. several items with the same `sentOn`
   from one paste) need a final deterministic tiebreaker (`id`), not just `sentOn`/`createdAt` — an
   `UPDATE` (a stage tap) can change a row's physical scan position in Postgres/PGlite, which
