@@ -1,7 +1,8 @@
 import { CURRENCIES, forUser } from '@dailyx/db';
-import { Badge, Button, Card, Eyebrow, Input, Select } from '@dailyx/ui';
+import { Badge, Button, Card, Input, Select } from '@dailyx/ui';
 import type { Metadata } from 'next';
 
+import { Page, PageHeader } from '@/components/page';
 import { requireUser } from '@/server/auth';
 import { signOut } from '@/server/auth-actions';
 import { getDb } from '@/server/db';
@@ -27,21 +28,21 @@ export default async function SettingsPage(props: SettingsPageProps) {
   if (!timezones.includes(s.timezone)) timezones.unshift(s.timezone);
 
   return (
-    <main className="flex min-h-screen flex-col gap-6 bg-bg-000 px-5 py-8">
-      <header className="flex items-end justify-between gap-4">
-        <div>
-          <Eyebrow>Vector</Eyebrow>
-          <h1 className="text-display text-ink">Settings</h1>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="text-caption text-ink-faint">{user.email}</span>
-          <form action={signOut}>
-            <Button type="submit" variant="quiet" size="sm">
-              Sign out
-            </Button>
-          </form>
-        </div>
-      </header>
+    <Page>
+      <PageHeader
+        eyebrow="Vector"
+        title="Settings"
+        actions={
+          <>
+            <span className="text-caption text-ink-faint">{user.email}</span>
+            <form action={signOut}>
+              <Button type="submit" variant="quiet" size="sm">
+                Sign out
+              </Button>
+            </form>
+          </>
+        }
+      />
       {saved ? <Badge tone="up">Saved</Badge> : null}
       {error ? <Badge tone="down">{error}</Badge> : null}
       <form action={saveSettings} className="flex flex-col gap-6">
@@ -146,6 +147,6 @@ export default async function SettingsPage(props: SettingsPageProps) {
           </Button>
         </div>
       </form>
-    </main>
+    </Page>
   );
 }

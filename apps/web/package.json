@@ -13,6 +13,7 @@
     "refs": "VECTOR_REFS=1 playwright test"
   },
   "dependencies": {
+    "@dailyx/core": "workspace:*",
     "@dailyx/db": "workspace:*",
     "@dailyx/ui": "workspace:*",
     "better-auth": "1.7.6",
@@ -29,6 +30,7 @@
     "@types/node": "24.19.0",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
-    "tailwindcss": "4.3.3"
+    "tailwindcss": "4.3.3",
+    "tsx": "4.23.15"
   }
 }

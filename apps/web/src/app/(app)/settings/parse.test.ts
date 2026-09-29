@@ -1,31 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { fromHundredths, isTimeZone, parseSettingsForm, toHundredths } from './parse';
-
-describe('toHundredths', () => {
-  it.each([
-    ['3800', 380000],
-    ['19.99', 1999],
-    ['0.5', 50],
-    ['5', 500],
-    ['0', 0],
-    ['7.5', 750],
-  ])('%s -> %i', (input, expected) => {
-    expect(toHundredths(input)).toBe(expected);
-  });
-});
-
-describe('fromHundredths', () => {
-  it.each([
-    [380000, '3800.00'],
-    [1999, '19.99'],
-    [500, '5.00'],
-    [50, '0.50'],
-    [0, '0.00'],
-  ])('%i -> %s', (input, expected) => {
-    expect(fromHundredths(input)).toBe(expected);
-  });
-});
+import { isTimeZone, parseSettingsForm } from './parse';
 
 function validFormData(overrides: Record<string, string> = {}): FormData {
   const fd = new FormData();

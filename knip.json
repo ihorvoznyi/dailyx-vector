@@ -1,4 +1,15 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "ignore": [".claude/workflows/**", "packages/ui/visual/vector/**"]
+  "ignore": [".claude/workflows/**", "packages/ui/visual/vector/**"],
+  "ignoreDependencies": ["tsx"],
+  "workspaces": {
+    "apps/web": {
+      "entry": [
+        "e2e/app/prepare.ts",
+        "e2e/app/helpers.ts",
+        "src/components/math/show-math.tsx",
+        "src/components/page.tsx"
+      ]
+    }
+  }
 }

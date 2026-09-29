@@ -20,7 +20,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   const error = Array.isArray(rawError) ? rawError[0] : rawError;
 
   const session = await getAuth().api.getSession({ headers: await headers() });
-  if (session && isAllowedEmail(session.user.email, env.ALLOWED_EMAIL)) redirect('/settings');
+  if (session && isAllowedEmail(session.user.email, env.ALLOWED_EMAIL)) redirect('/');
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-bg-000 px-5">

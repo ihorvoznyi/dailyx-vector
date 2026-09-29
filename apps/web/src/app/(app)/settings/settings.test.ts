@@ -4,7 +4,7 @@ import { betterAuth } from 'better-auth';
 import { testUtils } from 'better-auth/plugins';
 import { describe, expect, it } from 'vitest';
 
-import { authOptions } from '../../server/auth-options';
+import { authOptions } from '../../../server/auth-options';
 import { fromHundredths, parseSettingsForm } from './parse';
 
 const SECRET = 'x'.repeat(40);

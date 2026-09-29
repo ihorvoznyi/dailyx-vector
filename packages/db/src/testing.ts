@@ -5,6 +5,8 @@ import { migrate } from 'drizzle-orm/pglite/migrator';
 
 import { createDb, type Db, type Schema } from './db';
 
+export { seed } from './seed/seed';
+
 export const migrationsFolder = fileURLToPath(new URL('../migrations', import.meta.url));
 
 /** A fresh in-memory PGlite with every migration applied. One per test file or test. */
