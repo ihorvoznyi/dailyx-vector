@@ -115,6 +115,11 @@
         "name": "364px",
         "value": "364px",
         "usage": "Canvas HUD right offset while a panel is open."
+      },
+      {
+        "name": "1240px",
+        "value": "1240px",
+        "usage": "Page max width (.page in the Dashboard and Acquisition previews)."
       }
     ]
   },
@@ -302,6 +307,16 @@
         "name": "hyp-form",
         "value": "auto minmax(0, 1fr) minmax(0, 1fr)",
         "usage": "HypothesisPanel direction, amount and window row."
+      },
+      {
+        "name": "srcs",
+        "value": "repeat(auto-fit, minmax(220px, 1fr))",
+        "usage": "Overview SourceStatus row (.srcs in the Dashboard preview)."
+      },
+      {
+        "name": "wide",
+        "value": "minmax(0, 1.6fr) minmax(0, 1fr)",
+        "usage": "Two-card row, wide + narrow (.vx-grid-2)."
       }
     ]
   }

@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 import { Eyebrow } from '../../atoms/eyebrow';
 import { Meter } from '../../atoms/meter';
 import { cn } from '../../lib/cn';
@@ -6,7 +8,7 @@ import { Badge } from '../badge';
 export interface ChannelHealthProps {
   items: {
     label: string;
-    value: string;
+    value: ReactNode;
     unit?: string;
     status?: 'ok' | 'watch' | 'fix' | 'info';
     note?: string;

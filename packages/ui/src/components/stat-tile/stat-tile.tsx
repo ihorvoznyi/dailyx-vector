@@ -19,6 +19,10 @@ export interface StatTileProps {
   source?: string;
   hero?: boolean;
   delay?: number;
+  /** A caption under the value, e.g. "Manual · updated 3 days ago". */
+  note?: string;
+  /** Stale data: warn border, a "Stale" warn Badge in place of `source`, note in warn ink. */
+  stale?: boolean;
 }
 
 /**
@@ -37,13 +41,15 @@ export function StatTile({
   source,
   hero,
   delay,
+  note,
+  stale,
 }: StatTileProps) {
   return (
-    <Card delay={delay}>
+    <Card delay={delay} className={stale ? 'border-warn' : undefined}>
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2">
           <Eyebrow>{label}</Eyebrow>
-          {source ? <Badge>{source}</Badge> : null}
+          {stale ? <Badge tone="warn">Stale</Badge> : source ? <Badge>{source}</Badge> : null}
         </div>
         <div
           className={cn(
@@ -78,6 +84,9 @@ export function StatTile({
             />
           ) : null}
         </div>
+        {note ? (
+          <p className={cn('text-caption', stale ? 'text-warn' : 'text-ink-faint')}>{note}</p>
+        ) : null}
       </div>
     </Card>
   );

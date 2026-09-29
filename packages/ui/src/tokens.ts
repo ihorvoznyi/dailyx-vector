@@ -69,7 +69,8 @@ export const tokens = {
     "156px": "156px",
     "340px": "340px",
     "360px": "360px",
-    "364px": "364px"
+    "364px": "364px",
+    "1240px": "1240px"
   },
   "radius": {
     "sm": "6px",
@@ -227,6 +228,8 @@ export const tokens = {
     "portfolio": "minmax(170px, 1.4fr) 72px 96px 64px minmax(150px, 1.3fr) 96px",
     "health": "repeat(auto-fill, minmax(200px, 1fr))",
     "pick": "repeat(auto-fill, minmax(260px, 1fr))",
-    "hyp-form": "auto minmax(0, 1fr) minmax(0, 1fr)"
+    "hyp-form": "auto minmax(0, 1fr) minmax(0, 1fr)",
+    "srcs": "repeat(auto-fit, minmax(220px, 1fr))",
+    "wide": "minmax(0, 1.6fr) minmax(0, 1fr)"
   }
 } as const;

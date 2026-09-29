@@ -5,12 +5,18 @@ import { useWidth } from '../../lib/use-width';
 
 export interface ChannelFunnelProps {
   stages: { label: string; value: number; universal?: string; flag?: string | null }[];
-  baseline?: number[];
+  baseline?: readonly (number | null)[];
   baselineLabel?: string;
   format?: NumberFormat;
   bandHeight?: number;
   minWidth?: number;
   universal?: boolean;
+  /** Step rates from core `stageRates` (step i = stage i → i+1). When set, ribbons and % use these
+   *  instead of stage[i+1].value ÷ stage[i].value. A null rate draws the thinnest ribbon and "—". */
+  rates?: readonly (number | null)[];
+  /** Step index of the biggest leak from core `biggestLeak`, or null for none. When set (including
+   *  null), the component doesn't pick a leak itself. */
+  leak?: number | null;
 }
 
 function wrapWords(s: string, max: number): string[] {
@@ -44,6 +50,8 @@ export function ChannelFunnel({
   bandHeight,
   minWidth,
   universal = true,
+  rates: givenRates,
+  leak: leakProp,
 }: ChannelFunnelProps) {
   const [ref, width] = useWidth<HTMLDivElement>(720);
   const W = Math.max(width, minWidth ?? 560);
@@ -56,19 +64,26 @@ export function ChannelFunnel({
   if (n < 2) return null;
   const padX = 8;
   const X = (i: number) => padX + i * ((W - 2 * padX - colW) / (n - 1));
-  const rates = st.slice(1).map((s, i) => (st[i]!.value ? s.value / st[i]!.value : 0));
+  const rates: (number | null)[] = givenRates
+    ? st.slice(1).map((_, i) => givenRates[i] ?? null)
+    : st.slice(1).map((s, i) => (st[i]!.value ? s.value / st[i]!.value : 0));
   const base = baseline ?? [];
-  const score = rates.map((r, i) => (base[i] ? r / base[i] : null));
+  const score = rates.map((r, i) => (r != null && base[i] ? r / base[i] : null));
   let leak = -1;
-  let worst = Infinity;
-  rates.forEach((r, i) => {
-    if (st[i]!.flag || st[i + 1]!.flag) return;
-    const s = score[i] ?? 9;
-    if (s < worst && s < 0.97) {
-      worst = s;
-      leak = i;
-    }
-  });
+  if (leakProp !== undefined) {
+    leak = leakProp ?? -1;
+  } else {
+    let worst = Infinity;
+    rates.forEach((r, i) => {
+      if (r == null) return;
+      if (st[i]!.flag || st[i + 1]!.flag) return;
+      const s = score[i] ?? 9;
+      if (s < worst && s < 0.97) {
+        worst = s;
+        leak = i;
+      }
+    });
+  }
   const sig = st.map((s) => s.value).join('|');
   const label = (i: number) =>
     i === 0 ? ('start' as const) : i === n - 1 ? ('end' as const) : ('middle' as const);
@@ -91,11 +106,11 @@ export function ChannelFunnel({
           const x0 = X(i) + colW;
           const x1 = X(i + 1);
           const xm = (x0 + x1) / 2;
-          const rr = Math.max(0.04, Math.min(1, r));
+          const rr = Math.max(0.04, Math.min(1, r ?? 0));
           const y1t = top + ((1 - rr) * Hn) / 2;
           const y1b = top + ((1 + rr) * Hn) / 2;
           const d = `M${x0} ${top} C${xm} ${top} ${xm} ${y1t} ${x1} ${y1t} L${x1} ${y1b} C${xm} ${y1b} ${xm} ${top + Hn} ${x0} ${top + Hn} Z`;
-          const dpp = base[i] != null ? (r - base[i]) * 100 : null;
+          const dpp = r !== null && base[i] != null ? (r - base[i]) * 100 : null;
           const isLeak = i === leak;
           return (
             <g key={sig + i} className="animate-fade" style={{ animationDelay: `${i * 110}ms` }}>
@@ -112,7 +127,7 @@ export function ChannelFunnel({
                 textAnchor="middle"
                 className="fill-ink font-mono text-15px leading-none font-semibold tabular-nums"
               >
-                {format(r * 100, { decimals: r < 0.1 ? 1 : 0 }) + '%'}
+                {r === null ? '—' : format(r * 100, { decimals: r < 0.1 ? 1 : 0 }) + '%'}
               </text>
               {dpp != null ? (
                 <text
