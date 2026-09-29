@@ -10,6 +10,8 @@ export default defineConfig([
     '**/playwright-report/',
     '**/test-results/',
     'packages/ui/visual/vector/',
+    // Agent worktrees live here; linting them OOMs and duplicates the repo (mirrors .prettierignore).
+    '.claude/',
   ]),
   ...nextVitals,
   ...nextTs,
