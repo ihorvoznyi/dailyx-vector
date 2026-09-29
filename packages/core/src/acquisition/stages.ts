@@ -27,3 +27,12 @@ export interface OutreachItem {
   /** The day each later stage was reached. A missing key means not reached. */
   readonly stageDates: Readonly<Partial<Record<TimedStage, IsoDate>>>;
 }
+
+/** Index of the furthest stage the item reached (0 = Reach); a later stage implies the earlier ones. */
+export function furthestStage(item: OutreachItem): number {
+  let furthest = 0;
+  UNIVERSAL_STAGES.forEach((stage, index) => {
+    if (stage !== 'reach' && item.stageDates[stage] !== undefined) furthest = index;
+  });
+  return furthest;
+}

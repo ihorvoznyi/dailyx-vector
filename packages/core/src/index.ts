@@ -14,6 +14,7 @@ export * from './acquisition/stage-rates';
 export * from './acquisition/baseline';
 export * from './acquisition/delta';
 export * from './acquisition/leak';
+export * from './acquisition/activity';
 export * from './acquisition/attribution';
 export * from './acquisition/return-per-hour';
 export * from './acquisition/verdict';

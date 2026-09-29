@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { addDays, daysBetween } from './dates';
+import { addDays, daysBetween, weekStart } from './dates';
 
 describe('addDays', () => {
   it('moves back 89 days to the start of a 90-day window', () => {
@@ -41,5 +41,24 @@ describe('daysBetween', () => {
 
   it('throws RangeError on a malformed date', () => {
     expect(() => daysBetween('2026-09-28', '28.09.2026')).toThrow(RangeError);
+  });
+});
+
+describe('weekStart', () => {
+  it('returns the same date when it is already a Monday', () => {
+    expect(weekStart('2026-09-28')).toBe('2026-09-28');
+  });
+
+  it('returns the Monday on or before a later day in the same week', () => {
+    expect(weekStart('2026-10-04')).toBe('2026-09-28');
+    expect(weekStart('2026-09-30')).toBe('2026-09-28');
+  });
+
+  it('crosses a year boundary', () => {
+    expect(weekStart('2027-01-01')).toBe('2026-12-28');
+  });
+
+  it('throws RangeError on an impossible date', () => {
+    expect(() => weekStart('2026-02-30')).toThrow(RangeError);
   });
 });

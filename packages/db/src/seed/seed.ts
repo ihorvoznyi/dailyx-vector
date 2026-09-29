@@ -1,4 +1,4 @@
-import { addDays, type Certainty, type IsoDate, type TimedStage } from '@dailyx/core';
+import { addDays, weekStart, type Certainty, type IsoDate, type TimedStage } from '@dailyx/core';
 
 import { forUser } from '../access';
 import type { Db } from '../db';
@@ -46,13 +46,6 @@ export function funnelItems(
   return items;
 }
 
-/** Monday on or before `date` (UTC). */
-export function weekStart(date: IsoDate): IsoDate {
-  const [y, m, d] = date.split('-').map(Number) as [number, number, number];
-  const dayOfWeek = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
-  return addDays(date, -((dayOfWeek + 6) % 7));
-}
-
 /** The UTC date with day `day` in the month `monthsOffset` months after `today`'s month. */
 export function monthDay(today: IsoDate, monthsOffset: number, day: number): IsoDate {
   const [y, m] = today.split('-').map(Number) as [number, number];
@@ -66,6 +59,7 @@ interface ChannelSpec {
   readonly maxHours: number | null;
   readonly cashCostMonthly: number;
   readonly funnel: readonly [number, number, number, number, number];
+  readonly sentPerWeek: number;
 }
 
 const CHANNELS: readonly ChannelSpec[] = [
@@ -76,6 +70,7 @@ const CHANNELS: readonly ChannelSpec[] = [
     maxHours: 15,
     cashCostMonthly: 10333,
     funnel: [180, 112, 41, 19, 6],
+    sentPerWeek: 15,
   },
   {
     preset: 'email',
@@ -84,6 +79,7 @@ const CHANNELS: readonly ChannelSpec[] = [
     maxHours: null,
     cashCostMonthly: 9667,
     funnel: [2400, 1050, 72, 14, 2],
+    sentPerWeek: 200,
   },
   {
     preset: 'linkedin',
@@ -92,6 +88,7 @@ const CHANNELS: readonly ChannelSpec[] = [
     maxHours: null,
     cashCostMonthly: 10000,
     funnel: [300, 96, 31, 6, 1],
+    sentPerWeek: 25,
   },
   {
     preset: 'referrals',
@@ -100,6 +97,7 @@ const CHANNELS: readonly ChannelSpec[] = [
     maxHours: 2,
     cashCostMonthly: 0,
     funnel: [6, 4, 3, 2, 1],
+    sentPerWeek: 1,
   },
 ];
 
@@ -242,10 +240,34 @@ export async function seed(db: Db, opts: SeedOptions): Promise<SeedResult> {
   const counts: Record<string, number> = {};
 
   const accountSpecs = [
-    { kind: 'broker' as const, name: 'IBKR', currency: 'USD' as const, balance: 2_645_000 },
-    { kind: 'bank' as const, name: 'Monobank', currency: 'UAH' as const, balance: 61_240_000 },
-    { kind: 'wallet' as const, name: 'PayPal', currency: 'USD' as const, balance: 524_000 },
-    { kind: 'cash' as const, name: 'Cash', currency: 'USD' as const, balance: 170_000 },
+    {
+      kind: 'broker' as const,
+      name: 'IBKR',
+      currency: 'USD' as const,
+      balance: 2_645_000,
+      ageDays: 0,
+    },
+    {
+      kind: 'bank' as const,
+      name: 'Monobank',
+      currency: 'UAH' as const,
+      balance: 61_240_000,
+      ageDays: 0,
+    },
+    {
+      kind: 'wallet' as const,
+      name: 'PayPal',
+      currency: 'USD' as const,
+      balance: 524_000,
+      ageDays: 0,
+    },
+    {
+      kind: 'wallet' as const,
+      name: 'Payoneer',
+      currency: 'USD' as const,
+      balance: 170_000,
+      ageDays: 10,
+    },
   ];
   const accounts = await data.moneyAccounts.createMany(
     accountSpecs.map((a) => ({ kind: a.kind, name: a.name, currency: a.currency, isLiquid: true })),
@@ -255,7 +277,7 @@ export async function seed(db: Db, opts: SeedOptions): Promise<SeedResult> {
   const snapshots = await data.balanceSnapshots.createMany(
     accounts.map((account, i) => ({
       accountId: account.id,
-      asOf: today,
+      asOf: addDays(today, -accountSpecs[i]!.ageDays),
       amount: accountSpecs[i]!.balance,
       currency: accountSpecs[i]!.currency,
     })),
@@ -275,18 +297,35 @@ export async function seed(db: Db, opts: SeedOptions): Promise<SeedResult> {
       maxHours: c.maxHours,
       startedOn: addDays(today, -120),
       cashCostMonthly: c.cashCostMonthly,
+      caps: { sentPerWeek: c.sentPerWeek },
     })),
   );
   counts.channelBets = channels.length;
   const channelIdByPreset = new Map(CHANNELS.map((c, i) => [c.preset, channels[i]!.id]));
 
+  /** Preset + 0-based item index → how many days ago it started awaiting a reply. */
+  const AWAITING_REPLY: readonly [ChannelSpec['preset'], number, number][] = [
+    ['upwork', 100, 2],
+    ['upwork', 101, 2],
+    ['linkedin', 90, 3],
+  ];
+  const awaitingReplyDaysAgo = new Map(
+    AWAITING_REPLY.map(([preset, index, daysAgo]) => [`${preset}-${index}`, daysAgo]),
+  );
+
   const outreachRows = CHANNELS.flatMap((c) =>
-    funnelItems(c.funnel, today).map((item, i) => ({
-      channelId: channelIdByPreset.get(c.preset)!,
-      sentOn: item.sentOn,
-      stageDates: item.stageDates,
-      externalId: `seed-${c.preset}-${i + 1}`,
-    })),
+    funnelItems(c.funnel, today).map((item, i) => {
+      const daysAgo = awaitingReplyDaysAgo.get(`${c.preset}-${i}`);
+      return {
+        channelId: channelIdByPreset.get(c.preset)!,
+        sentOn: item.sentOn,
+        stageDates: item.stageDates,
+        externalId: `seed-${c.preset}-${i + 1}`,
+        ...(daysAgo === undefined
+          ? {}
+          : { awaitingReplySince: new Date(`${addDays(today, -daysAgo)}T09:00:00.000Z`) }),
+      };
+    }),
   );
   const outreach = await data.outreachItems.createMany(outreachRows);
   counts.outreachItems = outreach.length;

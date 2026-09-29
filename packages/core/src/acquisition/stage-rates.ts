@@ -1,7 +1,7 @@
 import { daysBetween, type DateWindow, type IsoDate } from '../dates';
 import type { Metric } from '../result';
 import {
-  UNIVERSAL_STAGES,
+  furthestStage,
   type MaturityDays,
   type OutreachItem,
   type TimedStage,
@@ -55,13 +55,4 @@ export function stageRates(input: StageRatesInput): StageRate[] {
       recordIds: reachedFrom.map((i) => i.id),
     };
   });
-}
-
-/** Index of the furthest stage the item reached (0 = Reach); a later stage implies the earlier ones. */
-function furthestStage(item: OutreachItem): number {
-  let furthest = 0;
-  UNIVERSAL_STAGES.forEach((stage, index) => {
-    if (stage !== 'reach' && item.stageDates[stage] !== undefined) furthest = index;
-  });
-  return furthest;
 }

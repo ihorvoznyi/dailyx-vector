@@ -29,3 +29,9 @@ export function addDays(date: IsoDate, days: number): IsoDate {
 export function daysBetween(from: IsoDate, to: IsoDate): number {
   return (utcMs(to) - utcMs(from)) / DAY_MS;
 }
+
+/** The Monday on or before `date`. Throws RangeError unless `date` is a real `YYYY-MM-DD` day. */
+export function weekStart(date: IsoDate): IsoDate {
+  const dayOfWeek = new Date(utcMs(date)).getUTCDay();
+  return addDays(date, -((dayOfWeek + 6) % 7));
+}

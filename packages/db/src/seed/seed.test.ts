@@ -1,4 +1,4 @@
-import { money, netWorth } from '@dailyx/core';
+import { addDays, money, netWorth } from '@dailyx/core';
 import { count, eq } from 'drizzle-orm';
 import { describe, expect, it } from 'vitest';
 
@@ -6,17 +6,9 @@ import { forUser } from '../access';
 import { toAccountBalance, toFxRate } from '../map';
 import { auditEvents, moneyAccounts, user } from '../schema';
 import { createTestDb } from '../testing';
-import { funnelItems, monthDay, seed, weekStart } from './seed';
+import { funnelItems, monthDay, seed } from './seed';
 
 const TODAY = '2026-09-28';
-
-describe('weekStart', () => {
-  it('finds the Monday on or before the given date', () => {
-    expect(weekStart('2026-09-28')).toBe('2026-09-28');
-    expect(weekStart('2026-10-04')).toBe('2026-09-28');
-    expect(weekStart('2026-09-30')).toBe('2026-09-28');
-  });
-});
 
 describe('monthDay', () => {
   it('rolls the month, wrapping the year when needed', () => {
@@ -159,6 +151,49 @@ describe('seed', () => {
     expect(result.ok).toBe(true);
     if (!result.ok) throw new Error('unreachable');
     expect(result.data.value).toEqual(money(4_821_809, 'USD'));
+  }, 30_000);
+
+  it('names the four accounts, Cash replaced by Payoneer', async () => {
+    const db = await createTestDb();
+    await seed(db, { email: 'owner@x.com', today: TODAY, appEnv: undefined });
+    const accounts = await forUser(db, 'seed-owner').moneyAccounts.list();
+    expect(accounts.map((a) => a.name).sort()).toEqual(['IBKR', 'Monobank', 'PayPal', 'Payoneer']);
+  }, 30_000);
+
+  it("ages Payoneer's snapshot 10 days, and keeps the rest fresh", async () => {
+    const db = await createTestDb();
+    await seed(db, { email: 'owner@x.com', today: TODAY, appEnv: undefined });
+    const data = forUser(db, 'seed-owner');
+    const accounts = await data.moneyAccounts.list();
+    const snapshots = await data.balanceSnapshots.list();
+    const accountById = new Map(accounts.map((a) => [a.id, a]));
+
+    for (const snapshot of snapshots) {
+      const account = accountById.get(snapshot.accountId)!;
+      expect(snapshot.asOf).toBe(account.name === 'Payoneer' ? addDays(TODAY, -10) : TODAY);
+    }
+  }, 30_000);
+
+  it('sets awaitingReplySince on exactly three outreach items', async () => {
+    const db = await createTestDb();
+    await seed(db, { email: 'owner@x.com', today: TODAY, appEnv: undefined });
+    const data = forUser(db, 'seed-owner');
+    const channels = await data.channelBets.list();
+    const outreach = await data.outreachItems.list();
+    const channelById = new Map(channels.map((c) => [c.id, c]));
+
+    const waiting = outreach.filter((o) => o.awaitingReplySince !== null);
+    expect(waiting).toHaveLength(3);
+    const byPreset = waiting.map((o) => channelById.get(o.channelId)!.preset).sort();
+    expect(byPreset).toEqual(['linkedin', 'upwork', 'upwork']);
+  }, 30_000);
+
+  it("gives Upwork's bet a sentPerWeek cap", async () => {
+    const db = await createTestDb();
+    await seed(db, { email: 'owner@x.com', today: TODAY, appEnv: undefined });
+    const channels = await forUser(db, 'seed-owner').channelBets.list();
+    const upwork = channels.find((c) => c.preset === 'upwork')!;
+    expect(upwork.caps).toEqual({ sentPerWeek: 15 });
   }, 30_000);
 
   it('is idempotent for the same email', async () => {
