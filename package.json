@@ -16,7 +16,8 @@
     "test:e2e": "pnpm --filter @dailyx/web test:e2e",
     "knip": "knip",
     "db:generate": "pnpm --filter @dailyx/db generate",
-    "db:migrate": "pnpm --filter @dailyx/db migrate"
+    "db:migrate": "pnpm --filter @dailyx/db migrate",
+    "db:seed": "pnpm --filter @dailyx/db seed"
   },
   "devDependencies": {
     "@dailyx/config": "workspace:*",
