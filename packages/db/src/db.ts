@@ -20,7 +20,9 @@ export interface DbEnv {
   PGLITE_DIR?: string | undefined;
 }
 
-export function createDb(env: DbEnv = process.env): Db {
+export function createDb(
+  env: DbEnv = { DATABASE_URL: process.env.DATABASE_URL, PGLITE_DIR: process.env.PGLITE_DIR },
+): Db {
   if (env.DATABASE_URL) {
     return drizzleNeon({ client: new Pool({ connectionString: env.DATABASE_URL }), schema });
   }
