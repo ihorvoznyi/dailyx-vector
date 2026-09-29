@@ -1,6 +1,6 @@
 # Vector — Product & Build Spec
 
-Sep 28, 2026 · @Ihor · **Revised Sep 28, 2026 after scoping.** Decisions D1–D19 are applied
+Sep 28, 2026 · @Ihor · **Revised Sep 28, 2026 after scoping.** Decisions D1–D20 are applied
 throughout. A section that changed says so and names the decision.
 
 ## Summary
@@ -49,6 +49,7 @@ channel.
 | D16 | FX history comes from the NBU API. The Monobank public endpoint returns current rates only. | Verified by a live request. | Data sources |
 | D17 | M1 data is entered by hand and can't be re-synced, so backups matter from day one. Confirm Neon's restore window before T05. | Original assumption, that everything is re-syncable, doesn't hold in M1. | Security, Open decisions |
 | D18 | Tailwind CSS v4 everywhere. The theme is generated from Vector tokens only, with no arbitrary values. Components are rebuilt as atoms composed into the 33 public components, keeping their names and props; variants use `cva` + `cn`. `bundle.css` is a reference only. | The owner wants one styling system built from reusable, modular components. | Design system, `docs/adr/0002-styling.md` |
+| D20 | The Lab canvas and the skill tree move up to ship with the M1 acquisition MVP: stats (T26); levers, hypotheses, locking and amendments (T27); HypothesisCanvas and HypothesisPanel (T28); variant tagging (T29); the skill tree with persistence (T31); and metric-linked tiles (T32). Metrics are computed on read until the M3 worker exists. Frozen verdicts, ForestPlot, calibration and markers (T30), and the audit (T33), stay later. | The owner wants to plan experiments and grow skills while acquisition logging starts, so variants get tagged from day one of logging. | Scope, Screens, Domain model, Tickets |
 | D19 | For now, commit straight to `master`: no PRs, no preview deploys, and no CI. The gates run locally and in the pre-commit hook. Every push deploys to Vercel. | One developer; review happens through the agent pipeline, not PRs. | Scope (P0), Build plan |
 
 ## Principles and non-goals
@@ -95,8 +96,9 @@ used daily before the next starts. **Don't start M2 tickets until the M1 exit ga
 | M1 Acquisition MVP | Know which channel turns hours into clients | Setup (channels, hours, cost, accounts); quick-log, paste a list and stage taps; ChannelFunnel and ChannelHealth per channel; weekly review; manual money feeding FreedomMeter, net worth and runway; show-the-math drawer | Two straight weeks with every outreach item logged, and the weekly review under 10 minutes | In use ~Oct 23; gate ~Nov 6 |
 | M2 Decide | Rank the next hour | Channel return per hour, verdicts, rebalance, ChannelPortfolio; action rules and ranked ActionQueue; Upwork connector (after the Explorer spike); Sources page | Portfolio verdicts shown for every channel older than 45 days; the Upwork stages the API exposes sync without manual taps | — |
 | M3 Money truth | Trust the money numbers | Cloudflare worker; Monobank (API + webhook); IBKR Flex; PayPal and Payoneer (CSV, or API where available); CSV framework; NBU FX; transfers and bank matching; projects, milestones, IncomeForecast; tax details; nightly MetricSnapshot | Net worth within 1% of real balances for 14 straight days, with the measurement defined at M3 start | — |
-| M4 Lab | Learn what works | Levers, hypotheses, variant tagging, Bayesian stats, frozen verdicts, ForestPlot, CalibrationChart, TrendChart markers | First experiment concluded with a frozen verdict | — |
-| M5 Skills and polish | Grow on purpose | Skill tree canvas, metric-linked tiles, mobile and accessibility audit | Skill tiles update from metrics without manual edits | — |
+| M1+ Lab canvas and skill tree (D20) | Plan experiments and grow skills alongside M1 | Levers, hypotheses, locking and amendments, HypothesisCanvas and HypothesisPanel, variant tagging, Bayesian stats with live evidence; skill tree canvas with persistence and metric-linked tiles (computed on read) | A tagged experiment is running on logged outreach; skill tiles move with metrics without manual edits | With M1 |
+| M4 Lab (rest) | Learn what works | Frozen verdicts, ForestPlot, CalibrationChart, TrendChart markers, adopting supported hypotheses into the skill tree | First experiment concluded with a frozen verdict | — |
+| M5 Polish | Finish | Nightly-snapshot tile updates (after M3), mobile and accessibility audit | Axe audit clean; no horizontal scroll at 390 px | — |
 
 ## Screens
 
@@ -111,8 +113,8 @@ to match those previews.
 | `/acquisition` and `/acquisition/[channel]` | Channel lenses, and the bets portfolio from M2 | ChannelLens, ChannelFunnel, ChannelHealth, TrendChart; ChannelPortfolio and ActionQueue from M2 | M1, M2 |
 | Quick-log | Log outreach from any page: one item, a pasted list, or a stage tap | Button, Badge, SegmentedControl | M1 |
 | `/review` | Weekly review: waiting replies, hours, stale balances; variant tags and verdicts from M4 | ActionQueue, Badge, Button | M1 |
-| `/lab` and `/lab/[id]` | Hypothesis map and experiment detail | HypothesisCanvas, HypothesisPanel, EvidenceMeter, ForestPlot, CalibrationChart | M4 |
-| `/skills` | Skill tree canvas | SkillTree, SkillNode, SkillPanel | M5 |
+| `/lab` and `/lab/[id]` | Hypothesis map and experiment detail | HypothesisCanvas, HypothesisPanel, EvidenceMeter; ForestPlot and CalibrationChart later | M1+ (D20), rest M4 |
+| `/skills` | Skill tree canvas | SkillTree, SkillNode, SkillPanel | M1+ (D20) |
 | `/sources` | Connections, freshness, errors, sync log, CSV import | SourceStatus, Card, Badge | M2 |
 | `/settings` | Costs, currencies, tax rate, caps, horizon, data export | Card, SegmentedControl | P0 |
 
@@ -179,11 +181,11 @@ table is named `money_accounts`.
 | ChannelBet | `preset` (upwork, email, linkedin, content, referrals, marketplace), `hours_per_week`, `max_hours`, `started_on`, `caps` (jsonb), `cash_cost_monthly` | The "channel" that `channel_id` points to elsewhere. Stage maturities are per channel and editable. | M1 |
 | OutreachItem | `channel_id`, `external_id?`, `contact_name`, `company`, `url`, `sent_at`, `stage_times` (jsonb, per universal stage), `awaiting_reply_since?`, `variant`, `hypothesis_id?`, `value_estimate`, `income_source_id?` | One proposal, email thread, invite or ask. Stage times drive the funnel. The contact fields and `awaiting_reply_since` are new (D3); `variant` and `hypothesis_id` stay null until M4. | M1 |
 | **Learning** |  |  |  |
-| Lever | `label`, `icon`, `x`, `y` | Canvas position persisted. | M4 |
-| Hypothesis | `code`, `lever_id`, `metric_key`, `status`, `change`, `direction`, `amount`, `window_days`, `because`, `method`, `stop_rule`, `kill_rule`, `confidence`, `n_target`, `started_at`, `ended_at`, `locked_at`, `verdict` (jsonb, frozen), `adopted_to_skill_id` | Statement fields are immutable after `locked_at`. | M4 |
-| Amendment | `hypothesis_id`, `field`, `old`, `new`, `reason`, `at` |  | M4 |
+| Lever | `label`, `icon`, `x`, `y` | Canvas position persisted. | M1+ (D20) |
+| Hypothesis | `code`, `lever_id`, `metric_key`, `status`, `change`, `direction`, `amount`, `window_days`, `because`, `method`, `stop_rule`, `kill_rule`, `confidence`, `n_target`, `started_at`, `ended_at`, `locked_at`, `verdict` (jsonb, frozen), `adopted_to_skill_id` | Statement fields are immutable after `locked_at`. | M1+ (D20) |
+| Amendment | `hypothesis_id`, `field`, `old`, `new`, `reason`, `at` |  | M1+ (D20) |
 | MetricSnapshot | `metric_key`, `date`, `value`, `numerator`, `denominator`, `inputs_hash`, `recalculated_from?` | Nightly and immutable; a correction adds a row. M1 computes metrics on read. | M3 |
-| SkillNode | `tree_id`, `title`, `icon`, `col`, `row`, `requires` (uuid\[\]), `progress_kind` (metric, steps, levels, toggle), `metric_key?`, `target?`, `steps` (jsonb), `level`, `max_level`, `done_at` |  | M5 |
+| SkillNode | `tree_id`, `title`, `icon`, `col`, `row`, `requires` (uuid\[\]), `progress_kind` (metric, steps, levels, toggle), `metric_key?`, `target?`, `steps` (jsonb), `level`, `max_level`, `done_at` |  | M1+ (D20) |
 | AuditEvent | `entity`, `entity_id`, `actor` (sync, user, rule), `change` (jsonb), `at` | Every write that changes a number the user sees. | M1 |
 
 Settings live on the user row: `base_currency` (USD), `monthly_cost`, `tax_rate_bps` (default 500,
@@ -490,13 +492,13 @@ and new tickets start at T34.
 | T14b | Projects, milestones, all payment certainty states | M3 | T14a | All certainty states can be created and edited |
 | T15 | Transfers between own accounts, bank matching (one transaction to many payments) and match review items | M3 | T10, T14b | Unique matches auto-confirm; ambiguous ones go to review; transfers never count as income |
 | T16 | Full Money page: ClientCard, ProjectCard, PayoutBar, IncomeForecast | M3 | T14b, T15 | Matches the Work reference page; pipeline never in totals |
-| T26 | core stats: Beta-binomial Monte Carlo, bootstrap, verdicts, Brier score | M4 | T08 | Seeded results are reproducible |
-| T27 | Levers, hypotheses, locking, amendments | M4 | T06 | Locked fields reject edits; amendments are logged |
-| T28 | HypothesisCanvas + HypothesisPanel | M4 | T35, T27 | Dragging a lever to a metric creates a draft |
-| T29 | Variant tagging in quick-log and review | M4 | T20, T27 | Every outreach item in a running test has a variant |
+| T26 | core stats: Beta-binomial Monte Carlo, bootstrap, verdicts, Brier score | M1+ | T08 | Seeded results are reproducible |
+| T27 | Levers, hypotheses, locking, amendments | M1+ | T06 | Locked fields reject edits; amendments are logged |
+| T28 | HypothesisCanvas + HypothesisPanel | M1+ | T35, T27 | Dragging a lever to a metric creates a draft |
+| T29 | Variant tagging in quick-log and review | M1+ | T20, T27 | Every outreach item in a running test has a variant |
 | T30 | Frozen verdicts, ForestPlot, CalibrationChart, experiment markers | M4 | T26, T28 | A late correction shows "recalculated" |
-| T31 | Skill tree canvas with persistence | M5 | T35 | Tile moves and progress survive reload |
-| T32 | Metric-linked skill tiles | M5 | T31, T09b | Tiles update from nightly snapshots |
+| T31 | Skill tree canvas with persistence | M1+ | T35 | Tile moves and progress survive reload |
+| T32 | Metric-linked skill tiles | M1+ | T31, T22a | Tiles update from metrics computed on read; nightly snapshots take over after T09b |
 | T33 | Mobile and accessibility audit | M5 | T17, T23b, T30 | No horizontal scroll at 390 px; axe audit clean |
 
 ## Open decisions and risks
