@@ -204,4 +204,37 @@ describe('forUser', () => {
     expect((updateRow?.change.before as { name: string }).name).toBe('Mono');
     expect((updateRow?.change.after as { name: string }).name).toBe('Monobank');
   });
+
+  it('createMany: A creates 1,200 outreach items (1,200 rows, 1,200 new audit rows)', async () => {
+    const auditBefore = await auditCount(db, 'ua');
+    const values = Array.from({ length: 1200 }, (_, i) => ({
+      channelId: ids.channelBets!,
+      sentOn: '2026-07-01',
+      externalId: `bulk-${i}`,
+    }));
+
+    const rows = await forUser(db, 'ua').outreachItems.createMany(values);
+
+    expect(rows).toHaveLength(1200);
+    expect(await auditCount(db, 'ua')).toBe(auditBefore + 1200);
+  });
+
+  it("createMany: B's batch rejects entirely when one row points at A's channel (all-or-nothing)", async () => {
+    const bChannel = await forUser(db, 'ub').channelBets.create({
+      preset: 'linkedin',
+      name: 'B channel',
+      startedOn: '2026-08-01',
+    });
+    const auditBefore = await auditCount(db, 'ub');
+
+    await expect(
+      forUser(db, 'ub').outreachItems.createMany([
+        { channelId: bChannel.id, sentOn: '2026-07-01' },
+        { channelId: ids.channelBets!, sentOn: '2026-07-02' },
+      ]),
+    ).rejects.toThrow();
+
+    expect(await forUser(db, 'ub').outreachItems.list()).toEqual([]);
+    expect(await auditCount(db, 'ub')).toBe(auditBefore);
+  });
 });
