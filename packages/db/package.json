@@ -3,12 +3,24 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./testing": "./src/testing.ts"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "generate": "drizzle-kit generate",
+    "migrate": "tsx --env-file-if-exists=../../apps/web/.env.local src/scripts/migrate.ts"
+  },
+  "dependencies": {
+    "@dailyx/core": "workspace:*",
+    "@electric-sql/pglite": "0.5.8",
+    "@neondatabase/serverless": "1.1.0",
+    "drizzle-orm": "0.45.3"
   },
   "devDependencies": {
-    "@dailyx/config": "workspace:*"
+    "@dailyx/config": "workspace:*",
+    "@types/node": "24.19.0",
+    "drizzle-kit": "0.31.11",
+    "tsx": "4.23.15"
   }
 }

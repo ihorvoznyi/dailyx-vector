@@ -6,6 +6,9 @@ CLAUDE.local.md
 
 # Dependencies and build output
 node_modules/
+
+# Local PGlite database (dev)
+.data/
 .next/
 dist/
 coverage/

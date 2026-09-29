@@ -14,7 +14,9 @@
     "format": "prettier --write .",
     "test": "vitest run --passWithNoTests",
     "test:e2e": "pnpm --filter @dailyx/web test:e2e",
-    "knip": "knip"
+    "knip": "knip",
+    "db:generate": "pnpm --filter @dailyx/db generate",
+    "db:migrate": "pnpm --filter @dailyx/db migrate"
   },
   "devDependencies": {
     "@dailyx/config": "workspace:*",
